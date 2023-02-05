@@ -1,9 +1,10 @@
 group 'org.openapitools'
 version '1.0.0'
-
-wrapper {
-    gradleVersion = '7.5'
-    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+if (rootProject == project) {
+    wrapper {
+        gradleVersion = '7.5'
+        distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+    }
 }
 
 buildscript {
@@ -18,10 +19,6 @@ buildscript {
 }
 
 apply plugin: 'kotlin'
-
-repositories {
-    maven { url "https://repo1.maven.org/maven2" }
-}
 
 test {
     useJUnitPlatform()

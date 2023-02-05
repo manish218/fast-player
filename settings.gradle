@@ -13,4 +13,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Fast Player"
+include ':network'
 include ':app'
