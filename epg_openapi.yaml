@@ -1,0 +1,316 @@
+openapi: 3.0.0
+info:
+  description: "EPG APIs"
+  version: "0.0.1"
+  title: "EPG API"
+  contact:
+    email: "myadav.dce@gmail.com"
+  license:
+    name: "Private, must not be shared"
+
+
+
+paths:
+  /epg:
+    get:
+      tags:
+        - "epg"
+      summary: "Fetch EPG sorted by taxonomies"
+      operationId: "getEpg"
+      security:
+        - apiKeyAuth: []
+      responses:
+        "200":
+          description: "List of channels sorted by Taxonomy"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EpgRow"
+
+  /channelPlaybackInfo/{channel-id}:
+    get:
+      tags:
+        - "playbackinfo"
+      summary: "Get user or editorial playlists, with default as the first item"
+      description: ""
+      operationId: "getPlaybackinfo"
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - in: path
+          name: channel-id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelPlaybackInfo"
+        "401":
+          description: "Invalid or expired token"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseModel'
+
+components:
+  securitySchemes:
+    apiKeyAuth:        # arbitrary name for the security scheme
+      type: apiKey
+      in: header       # can be "header", "query" or "cookie"
+      name: X-Api-Key  # name of the header, query parameter
+
+  schemas:
+
+    Common:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "Unique resource id"
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: "Title of a content item"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 501
+          description: "Description of the content"
+        url:
+          type: string
+          format: url
+          description: "Relative URL to this resource. Ex /channel/itv1 or /taxonomy/football"
+
+    Image:
+      allOf:
+        - $ref: '#/components/schemas/Common'
+        - type: object
+          properties:
+            height:
+              type: integer
+              minimum: 1
+              description: "Height in pixels"
+            width:
+              type: integer
+              minimum: 1
+              description: "Width in pixels"
+            kind:
+              type: string
+              enum:
+                - thumbnail
+                - logo
+                - logo-grey
+                - hero-background-port
+                - hero-background-land
+              description: "type of image to determine where to use"
+
+    Taxonomy:
+      allOf:
+        - $ref: '#/components/schemas/Common'
+        - type: object
+          properties:
+            taxonomyId:
+              type: string
+              minLength: 1
+              maxLength: 100
+              description: "Alpha numeric number to identify a Taxonomy. It is unique accross a territory"
+            images:
+              type: array
+              items:
+                $ref: '#/components/schemas/Image'
+            isFavourite:
+              type: boolean
+              default: false
+              description: "If user marked this as a favourite"
+
+    Language:
+      allOf:
+        - $ref: '#/components/schemas/Common'
+        - type: object
+          properties:
+            languageIsoCode:
+              type: string
+              minLength: 3
+              maxLength: 3
+              description: "ISO 639-1 (3 letter code)"
+
+    Country:
+      allOf:
+        - $ref: '#/components/schemas/Common'
+        - type: object
+          properties:
+            countryIsoCode:
+              type: string
+              minLength: 2
+              maxLength: 2
+              description: "ISO 3166-1 alpha-2 code"
+
+    LocaleFilter:
+      allOf:
+        - $ref: '#/components/schemas/Common'
+        - type: object
+          properties:
+            language:
+              $ref: '#/components/schemas/Language'
+            country:
+              $ref: '#/components/schemas/Country'
+
+    Channel:
+      allOf:
+        - $ref: '#/components/schemas/Common'
+        - type: object
+          properties:
+            channelid:
+              type: string
+              format: channel-id
+              minLength: 1
+              maxLength: 100
+              description: "Alpha numeric number to identify a channel. It is unique accross a territory"
+            images:
+              type: array
+              items:
+                $ref: '#/components/schemas/Image'
+            country:
+              type: string
+              description: "See Country.isoCountryCode. One channel can only belong to one country"
+            language:
+              type: array
+              items:
+                type: string
+                description: "See isoLanguageCode"
+            isFavourite:
+              type: boolean
+              default: false
+              description: "If user marked this as a favourite"
+            taxonomies:
+              type: array
+              items:
+                $ref: '#/components/schemas/Taxonomy'
+
+    Show:
+      allOf:
+        - $ref: '#/components/schemas/Common'
+        - type: object
+          properties:
+            showId:
+              type: string
+              format: show-id
+              minLength: 1
+              maxLength: 100
+              description: "Alpha numeric number to identify a show. It is unique accross a territory"
+            images:
+              type: array
+              items:
+                $ref: '#/components/schemas/Image'
+            country:
+              type: string
+              description: "See Country.isoCountryCode. One channel can only belong to one country"
+            language:
+              type: array
+              items:
+                type: string
+                description: "See isoLanguageCode"
+            isFavourite:
+              type: boolean
+              default: false
+              description: "If user marked this as a favourite"
+            taxonomies:
+              type: array
+              items:
+                $ref: '#/components/schemas/Taxonomy'
+
+    Program:
+      allOf:
+        - $ref: '#/components/schemas/Common'
+        - type: object
+          properties:
+            channel:
+              $ref: '#/components/schemas/Channel'
+            show:
+              $ref: '#/components/schemas/Show'
+            country:
+              description: "See Country.isoCountryCode. One channel can only belong to one country"
+            language:
+              type: array
+              items:
+                type: string
+                description: "See isoLanguageCode"
+            images:
+              type: array
+              items:
+                $ref: '#/components/schemas/Image'
+            scheduleStart:
+              type: string
+              format: date-time
+              description: "Program start date and time in UTC"
+            scheduleEnd:
+              type: string
+              format: date-time
+              description: "Program end date and time in UTC"
+            seasonNumber:
+              type: integer
+              minimum: 1
+            episodeNumber:
+              type: integer
+              minimum: 1
+            isFavourite:
+              type: boolean
+              default: false
+              description: "If user marked this as a favourite"
+            taxonomies:
+              type: array
+              items:
+                $ref: '#/components/schemas/Taxonomy'
+
+    ChannelPlaybackInfo:
+      type: object
+      properties:
+        channel:
+          $ref: '#/components/schemas/Channel'
+        streamInfo:
+          $ref: '#/components/schemas/ChannelStreamInfo'
+
+    ChannelStreamInfo:
+      type: object
+      properties:
+        streamUrl:
+          type: string
+          format: url
+          description: "Stream URL"
+        streamType:
+          type: string
+          enum:
+            - hls
+            - dash
+
+    EpgRow:
+      type: object
+      properties:
+        programs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Program'
+          description: "List of programs belonging to one channel and first taxonomy in the nested fields of the program"
+
+
+    ApiResponseModel:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
