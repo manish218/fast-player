@@ -8,8 +8,6 @@ info:
   license:
     name: "Private, must not be shared"
 
-
-
 paths:
   /epg:
     get:
