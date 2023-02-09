@@ -1,10 +1,6 @@
 package com.spark.fastplayer
 
-import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -30,7 +26,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen().apply {
             setKeepOnScreenCondition {
-                viewModel.splashState.value == SplashState.Loaded
+                viewModel.splashState.value == SplashState.Init
             }
         }
 

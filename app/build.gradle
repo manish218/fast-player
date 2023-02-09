@@ -6,13 +6,14 @@ plugins {
 }
 
 android {
+    def targetVersion = 33
     namespace 'com.spark.fastplayer'
-    compileSdk 33
+    compileSdk targetVersion
 
     defaultConfig {
         applicationId "com.spark.fastplayer"
         minSdk 25
-        targetSdk 33
+        targetSdk targetVersion
         versionCode 1
         versionName "1.0"
 
