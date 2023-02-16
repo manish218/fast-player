@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.spark.fastplayer">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name=".FastApp"
         android:allowBackup="true"
@@ -15,7 +17,7 @@
         android:theme="@style/Theme.FastPlayer"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".presentation.epg.EPGActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.App.Splash">
