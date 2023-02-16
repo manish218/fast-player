@@ -63,6 +63,10 @@ class EPGActivity : ComponentActivity() {
                     is EPGState.FetchError -> {
                         // display error UI
                     }
+
+                    else -> {
+
+                    }
                 }
             }
         }
