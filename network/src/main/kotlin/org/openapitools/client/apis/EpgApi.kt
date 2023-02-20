@@ -102,6 +102,7 @@ class EpgApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClient = A
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         localVariableHeaders["Accept"] = "application/json"
+        localVariableHeaders["X-API-Key"] = "KJ2TSNFNM77loRy5yrwBH9NqVKrhukqF96UCtvVV"
 
         return RequestConfig(
             method = RequestMethod.GET,
