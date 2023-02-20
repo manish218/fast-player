@@ -28,5 +28,4 @@ class EPGViewModel @Inject constructor(
             _epgState.value = EPGState.FetchSuccess(epgData)
         }
     }
-
 }

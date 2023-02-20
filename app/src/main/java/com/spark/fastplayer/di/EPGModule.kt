@@ -1,5 +1,6 @@
 package com.spark.fastplayer.di
 
+import com.spark.fastplayer.BuildConfig
 import com.spark.fastplayer.data.repository.EPGRepositoryImpl
 import com.spark.fastplayer.domain.repository.EPGRepository
 import dagger.Module
@@ -30,5 +31,5 @@ class EPGModule {
     fun providesEPGApi(baseUrl: String, okHttpClient: OkHttpClient) = EpgApi(baseUrl, okHttpClient)
 
     @Provides
-    fun providesBaseUrl() = "https://0itfjctli1.execute-api.eu-west-2.amazonaws.com/prod-1"
+    fun providesBaseUrl() = BuildConfig.API_URL
 }
