@@ -2,10 +2,7 @@ package com.spark.fastplayer.presentation.epg
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.view.View
-import android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-import android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -17,6 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
+import com.spark.fastplayer.common.activatePlayerLandscapeMode
+import com.spark.fastplayer.common.activatePlayerPortraitMode
+import com.spark.fastplayer.presentation.player.PlayerAction
 import com.spark.fastplayer.presentation.player.PlayerViewModel
 import com.spark.fastplayer.presentation.player.VideoPlayerWidget
 import com.spark.fastplayer.presentation.splash.SplashState
@@ -55,22 +56,31 @@ class EPGActivity : ComponentActivity() {
                 }
             }
         }
+
+        lifecycleScope.launchWhenStarted {
+            playerViewModel.playerAction.collect{ action->
+                when(action) {
+                    is PlayerAction.Share -> {
+                        Toast.makeText(this@EPGActivity, "Share", Toast.LENGTH_SHORT).show()
+                    }
+                    is PlayerAction.Liked -> {
+                        Toast.makeText(this@EPGActivity, "Liked", Toast.LENGTH_SHORT).show()
+                    }
+                    is PlayerAction.Info -> {
+                        Toast.makeText(this@EPGActivity, "Info", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> { }
+                }
+            }
+        }
     }
 
     override fun onConfigurationChanged(config: Configuration) {
         super.onConfigurationChanged(config)
         if (config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            val decorView = window.decorView
-            val uiOptions =
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            decorView.systemUiVisibility = uiOptions
+           window.activatePlayerLandscapeMode()
         } else {
-            val decorView = window.decorView
-            val uiOptions = SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                    SYSTEM_UI_FLAG_LAYOUT_STABLE
-            decorView.systemUiVisibility = uiOptions
-            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            window.activatePlayerPortraitMode()
         }
     }
 

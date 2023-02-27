@@ -2,7 +2,6 @@ package com.spark.fastplayer.presentation.player
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.spark.fastplayer.presentation.splash.SplashState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -10,19 +9,25 @@ import kotlinx.coroutines.launch
 class PlayerViewModel: ViewModel() {
 
 
-    private val _playerState = MutableStateFlow<PlayerState>(PlayerState.Init)
-    val playerState = _playerState.asStateFlow()
+    private val _playerAction = MutableStateFlow<PlayerAction>(PlayerAction.None)
+    val playerAction = _playerAction.asStateFlow()
 
 
-    fun onFullScreenRequested() {
+    fun onShareClicked() {
         viewModelScope.launch {
-            _playerState.value = PlayerState.FullScreenRequest
+            _playerAction.value = PlayerAction.Share
         }
     }
 
-    fun onMinimizeScreenRequested() {
+    fun onInfoClicked() {
         viewModelScope.launch {
-            _playerState.value = PlayerState.MinimizeRequest
+            _playerAction.value = PlayerAction.Info
+        }
+    }
+
+    fun onLikeClicked() {
+        viewModelScope.launch {
+            _playerAction.value = PlayerAction.Liked
         }
     }
 }
