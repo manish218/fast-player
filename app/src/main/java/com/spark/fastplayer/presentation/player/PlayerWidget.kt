@@ -38,29 +38,38 @@ import com.spark.fastplayer.common.noRippleClickable
 @Composable
 fun VideoPlayerWidget(
     videoUri: String,
-    viewModel: PlayerViewModel
+    viewModel: PlayerViewModel,
+    playbackStateInfo: PlaybackState
 ) {
     val context = LocalContext.current
     val exoPlayer = remember {
         ExoPlayer.Builder(context)
             .build()
             .apply {
-                setMediaItem(
-                    MediaItem.Builder()
-                        .apply {
-                            setUri(videoUri)
-                            setMediaMetadata(
-                                MediaMetadata.Builder()
-                                    .setDisplayTitle("Streaming Kids Video")
-                                    .build()
-                            )
-                        }
-                        .build()
-                )
                 prepare()
-                playWhenReady = true
+               // playWhenReady = true
             }
     }
+    when(playbackStateInfo) {
+        is PlaybackState.PlaybackSuccess -> {
+            exoPlayer.setMediaItem(MediaItem.Builder()
+                .apply {
+                    setUri(playbackStateInfo.streamUrl)
+                    setMediaMetadata(
+                        MediaMetadata.Builder()
+                            .setDisplayTitle("Streaming Kids Video")
+                            .build()
+                    )
+                }
+                .build())
+            exoPlayer.play()
+        }
+        else -> {
+
+        }
+    }
+
+
 
     var shouldShowControls by remember { mutableStateOf(false) }
 
