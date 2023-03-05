@@ -1,7 +1,7 @@
 
-package com.spark.fastplayer.data
+package com.spark.fastplayer.data.repository
 
-import com.spark.fastplayer.domain.EPGRepository
+import com.spark.fastplayer.domain.repoisitory.EPGRepository
 import org.openapitools.client.apis.EpgApi
 import org.openapitools.client.apis.PlaybackinfoApi
 import org.openapitools.client.models.ChannelPlaybackInfo

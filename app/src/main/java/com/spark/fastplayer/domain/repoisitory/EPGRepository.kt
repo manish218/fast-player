@@ -1,4 +1,4 @@
-package com.spark.fastplayer.domain
+package com.spark.fastplayer.domain.repoisitory
 
 import org.openapitools.client.apis.EpgApi
 import org.openapitools.client.apis.PlaybackinfoApi

@@ -1,8 +1,8 @@
 package com.spark.fastplayer.di
 
 
-import com.spark.fastplayer.data.EPGRepositoryImpl
-import com.spark.fastplayer.domain.EPGRepository
+import com.spark.fastplayer.data.repository.EPGRepositoryImpl
+import com.spark.fastplayer.domain.repoisitory.EPGRepository
 import com.spark.fastplayer.BuildConfig
 import dagger.Module
 import dagger.Provides

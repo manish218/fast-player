@@ -3,7 +3,8 @@ package com.spark.fastplayer.presentation.epg
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.spark.fastplayer.common.CoroutineContextProvider
-import com.spark.fastplayer.domain.EPGRepository
+import com.spark.fastplayer.domain.repoisitory.EPGRepository
+import com.spark.fastplayer.presentation.player.PlayBackMetaData
 import com.spark.fastplayer.presentation.player.PlaybackState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,7 @@ class EPGViewModel @Inject constructor(
     private val coroutineContextProvider: CoroutineContextProvider,
     private val epgApi: EpgApi,
     private val playbackInfoApi: PlaybackinfoApi
-): ViewModel() {
+) : ViewModel() {
 
     private val _epgState = MutableStateFlow<EPGState>(EPGState.Fetch)
     val epgState = _epgState.asStateFlow()
@@ -30,6 +31,7 @@ class EPGViewModel @Inject constructor(
     init {
         getEPGData()
     }
+
     private fun getEPGData() {
         viewModelScope.launch(coroutineContextProvider.io) {
             val epgData = epgRepository.getEPGData(epgApi)
@@ -40,7 +42,13 @@ class EPGViewModel @Inject constructor(
     fun initPlayback(channelId: String) {
         viewModelScope.launch(coroutineContextProvider.io) {
             val playbackData = epgRepository.initPlayBack(channelId, playbackInfoApi)
-            _playbackState.value = PlaybackState.PlaybackSuccess(playbackData.streamInfo?.streamUrl.orEmpty())
+            _playbackState.value = PlaybackState.PlaybackSuccess(
+                PlayBackMetaData(
+                    streamUrl = playbackData.streamInfo?.streamUrl.orEmpty(),
+                    channelLogoUrl = playbackData.channel?.images?.firstOrNull()?.url.orEmpty(),
+                    title = playbackData.channel?.title.orEmpty()
+                )
+            )
         }
     }
 }
