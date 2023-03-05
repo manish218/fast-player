@@ -1,10 +1,12 @@
 package com.spark.fastplayer.presentation.epg.ui
 
 import android.os.Build
-import androidx.compose.animation.*
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -16,9 +18,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.spark.fastplayer.data.repository.TaxonomyPrograms
 import com.spark.fastplayer.presentation.epg.EPGState
+import kotlinx.coroutines.launch
 import org.openapitools.client.models.EpgRow
+import org.openapitools.client.models.Program
+import org.openapitools.client.models.Taxonomy
 
 @Composable
 fun Feed(
@@ -27,17 +31,6 @@ fun Feed(
     epgState: EPGState
 ) {
     when (epgState) {
-      /*  is EPGState.FetchSuccess -> {
-            val epgRowCollection = remember { epgState.list }
-            val taxonomyCollection = remember { epgState.taxonomies }
-             Feed(
-                 epgRowCollection,
-                 taxonomyCollection,
-                 onProgramClick,
-                 modifier
-             )
-        }*/
-
         is EPGState.FetchSuccessSortedData -> {
             val epgRowCollection = remember { epgState.map }
             val taxonomyCollection = remember { epgState.taxonomies }
@@ -48,7 +41,6 @@ fun Feed(
                 modifier
             )
         }
-
         else -> {}
     }
 }
@@ -56,48 +48,56 @@ fun Feed(
 
 @Composable
 private fun Feed(
-    snackCollections: List<Pair<String?, List<EpgRow>>>,
-    filters: List<String>,
+    epgRowCollection: List<Pair<Taxonomy?, List<EpgRow>>>,
+    filters: List<Taxonomy?>,
     onProgramClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
     JetChannelSurface(modifier = modifier.fillMaxSize()) {
         Box {
-            RenderEPGRowsCollections(snackCollections, filters, onProgramClick)
-            // DestinationBar()
+            RenderEPGRowsCollections(epgRowCollection, filters, onProgramClick)
         }
     }
 }
 
 @Composable
 private fun RenderEPGRowsCollections(
-    epgRow: List<Pair<String?, List<EpgRow>>>,
-    filters: List<String>,
+    epgRow: List<Pair<Taxonomy?, List<EpgRow>>>,
+    taxonomies: List<Taxonomy?>,
     onProgramClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var filtersVisible by rememberSaveable { mutableStateOf(false) }
-    Box(modifier) {
-        LazyColumn {
+    val listState = rememberLazyListState()
+    val scope  = rememberCoroutineScope()
+    val scope1  = rememberCoroutineScope()
 
+
+    Column(modifier) {
+        LazyColumn(state = listState) {
             item {
                 Spacer(
                     Modifier.windowInsetsTopHeight(
                         WindowInsets.statusBars.add(WindowInsets(top = 56.dp))
                     )
                 )
+                EpgTaxonomyCollection(taxonomyList = taxonomies, onTaxonomySelected = {
+                    scope.launch {
+                        listState.scrollToItem(getSelectedTaxonomyIndex(it, epgRow))
+                    }
+                })
             }
-            val list = epgRow.toList()
-            itemsIndexed(list) { index, list ->
+        }
+
+        LazyColumn(state = listState) {
+            itemsIndexed(epgRow) { _, list ->
                 Spacer(
                     Modifier.windowInsetsTopHeight(
-                        WindowInsets.statusBars.add(WindowInsets(top = 56.dp))
+                        WindowInsets.statusBars.add(WindowInsets(top = 28.dp))
                     )
                 )
                 Text(
                    text = list.second[0].programs?.firstOrNull()?.taxonomies?.firstOrNull()?.title.orEmpty(),
-                    //text = "New Category",
                     modifier = modifier
                         .wrapContentHeight(align = Alignment.CenterVertically)
                         .padding(12.dp),
@@ -110,10 +110,43 @@ private fun RenderEPGRowsCollections(
                 )
                 list.second.forEach {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        EpgRowsCollection(it.programs!!, onProgramClick)
+                        EpgProgramsCollection(it.programs!!, onProgramClick)
                     }
                 }
             }
         }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun EpgProgramsCollection(
+    programList: List<Program>,
+    onProgramClicked: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(modifier = modifier) {
+        ChannelImage(
+            imageUrl = programList.firstOrNull()?.channel?.images?.firstOrNull()?.url.orEmpty(),
+            contentDescription = "",
+            modifier = Modifier
+                .width(108.dp)
+                .height(60.dp)
+                .padding(start = 12.dp, end = 6.dp)
+        )
+        LazyRow(
+            modifier = modifier,
+            contentPadding = PaddingValues(end = 12.dp)
+        ) {
+            itemsIndexed(programList) { index, program ->
+                ChannelItem(program, onProgramClicked)
+            }
+        }
+    }
+}
+
+fun getSelectedTaxonomyIndex(taxonomyId: String, epgRow: List<Pair<Taxonomy?, List<EpgRow>>>): Int {
+   return epgRow.indexOfFirst {
+        it.second.firstOrNull()?.programs?.firstOrNull()?.taxonomies?.firstOrNull()?.taxonomyId == taxonomyId
     }
 }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import org.openapitools.client.apis.EpgApi
 import org.openapitools.client.models.EpgRow
 import org.openapitools.client.models.Program
+import org.openapitools.client.models.Taxonomy
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,10 +35,12 @@ class EPGViewModel @Inject constructor(
     }
 
     private fun filterTaxonomies(epgList: List<EpgRow>) {
-        val  set = HashSet<String> ()
+        val  set = HashSet<Taxonomy?> ()
         viewModelScope.launch(coroutineContextProvider.io) {
-            val map: Map<String?, List<EpgRow>> = epgList.groupBy { epgRow ->
-                epgRow.programs?.firstOrNull()?.taxonomies?.firstOrNull()?.taxonomyId?.orEmpty()
+            val map: Map<Taxonomy?, List<EpgRow>> = epgList.groupBy { epgRow ->
+               val tx =  epgRow.programs?.firstOrNull()?.taxonomies?.firstOrNull()
+                set.add(tx)
+                return@groupBy tx
             }
             _epgState.value = EPGState.FetchSuccessSortedData(map.toList(), set.toList())
         }

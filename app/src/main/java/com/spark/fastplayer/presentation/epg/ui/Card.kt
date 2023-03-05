@@ -1,6 +1,8 @@
 
 package com.spark.fastplayer.presentation.epg.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,22 +35,14 @@ import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.spark.fastplayer.R
+import com.spark.fastplayer.common.toBroadCastTime
+import org.openapitools.client.models.Program
 import kotlin.math.ln
 
 
 @Preview
 @Composable
-fun sample() {
-
-/*ChannelImage(
-        imageUrl = "https://fastly.picsum.photos/id/172/200/200.jpg?hmac=TU8G-y4_SgGNs4TuPhPvRQLvw2TUccb3fVgi-hnIsGE",
-        contentDescription = "",
-        modifier = Modifier
-            .height(50.dp)
-            .width(88.dp)
-    )*/
-
-
+fun DefaultView() {
     ChannelName(
         channelName = "The Monster animal",
         broadCastTime = "8:30 - 9:30 PM",
@@ -153,37 +147,48 @@ fun JetChannelSurface(
     }
 }
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun getBackgroundColorForElevation(color: Color, elevation: Dp): Color {
-    return if (elevation > 0.dp // && https://issuetracker.google.com/issues/161429530
-    // JetsnackTheme.colors.isDark //&&
-    // color == JetsnackTheme.colors.uiBackground
+fun ChannelItem(
+    program: Program?,
+    onProgramClicked: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    JetChannelSurface(
+        modifier = modifier.padding(
+            start = 4.dp,
+            end = 4.dp,
+            bottom = 8.dp
+        )
     ) {
-        color.withElevation(elevation)
-    } else {
-        color
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .clickable(onClick = { onProgramClicked(program?.channel?.url.orEmpty()) })
+        ) {
+            ChannelName(
+                channelName = program?.channel?.title.orEmpty(),
+                broadCastTime = program?.scheduleStart?.toBroadCastTime() + " - " + program?.scheduleEnd?.toBroadCastTime(),
+                contentDescription = "",
+                modifier = Modifier
+                    .width(140.dp)
+                    .height(60.dp)
+            )
+        }
     }
 }
 
-
-/**
- * Applies a [Color.White] overlay to this color based on the [elevation]. This increases visibility
- * of elevation for surfaces in a dark theme.
- *
- * TODO: Remove when public https://issuetracker.google.com/155181601
- */
+@Composable
+private fun getBackgroundColorForElevation(color: Color, elevation: Dp): Color {
+    return if (elevation > 0.dp) {
+        color.withElevation(elevation)
+    } else { color }
+}
 
 private fun Color.withElevation(elevation: Dp): Color {
     val foreground = calculateForeground(elevation)
     return foreground.compositeOver(this)
 }
-
-
-/**
- * @return the alpha-modified [Color.White] to overlay on top of the surface color to produce
- * the resultant color.
- */
 
 private fun calculateForeground(elevation: Dp): Color {
     val alpha = ((4.5f * ln(elevation.value + 1)) + 2f) / 100f
