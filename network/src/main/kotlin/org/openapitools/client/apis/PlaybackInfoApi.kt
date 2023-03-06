@@ -15,30 +15,17 @@
 
 package org.openapitools.client.apis
 
-import java.io.IOException
-import okhttp3.OkHttpClient
 import okhttp3.HttpUrl
-
-import org.openapitools.client.models.ApiResponseModel
+import okhttp3.OkHttpClient
+import org.openapitools.client.infrastructure.*
 import org.openapitools.client.models.ChannelPlaybackInfo
+import java.io.IOException
 
-import com.squareup.moshi.Json
-
-import org.openapitools.client.infrastructure.ApiClient
-import org.openapitools.client.infrastructure.ApiResponse
-import org.openapitools.client.infrastructure.ClientException
-import org.openapitools.client.infrastructure.ClientError
-import org.openapitools.client.infrastructure.ServerException
-import org.openapitools.client.infrastructure.ServerError
-import org.openapitools.client.infrastructure.MultiValueMap
-import org.openapitools.client.infrastructure.PartConfig
-import org.openapitools.client.infrastructure.RequestConfig
-import org.openapitools.client.infrastructure.RequestMethod
-import org.openapitools.client.infrastructure.ResponseType
-import org.openapitools.client.infrastructure.Success
-import org.openapitools.client.infrastructure.toMultiValue
-
-class PlaybackinfoApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClient = ApiClient.defaultClient) : ApiClient(basePath, client) {
+class PlaybackInfoApi(
+    basePath: kotlin.String = defaultBasePath,
+    client: OkHttpClient = ApiClient.defaultClient,
+    private val apiKey: String
+) : ApiClient(basePath, client) {
     companion object {
         @JvmStatic
         val defaultBasePath: String by lazy {
@@ -106,6 +93,7 @@ class PlaybackinfoApi(basePath: kotlin.String = defaultBasePath, client: OkHttpC
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         localVariableHeaders["Accept"] = "application/json"
+        localVariableHeaders["X-API-Key"] = apiKey
 
         return RequestConfig(
             method = RequestMethod.GET,

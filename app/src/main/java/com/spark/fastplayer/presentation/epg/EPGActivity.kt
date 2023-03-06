@@ -7,18 +7,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.spark.fastplayer.common.activatePlayerLandscapeMode
 import com.spark.fastplayer.common.activatePlayerPortraitMode
-import com.spark.fastplayer.presentation.player.PlayerAction
-import com.spark.fastplayer.presentation.player.PlayerViewModel
+import com.spark.fastplayer.presentation.player.PlaybackState
 import com.spark.fastplayer.presentation.player.VideoPlayerWidget
 import com.spark.fastplayer.presentation.splash.SplashState
 import com.spark.fastplayer.presentation.splash.SplashViewModel
@@ -31,7 +34,9 @@ class EPGActivity : ComponentActivity() {
 
     private val splashViewModel: SplashViewModel by viewModels()
 
-    private val playerViewModel: PlayerViewModel by viewModels()
+    private val epgViewModel: EPGViewModel by viewModels()
+
+    private var playbackState = mutableStateOf<PlaybackState>(PlaybackState.None)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,32 +49,32 @@ class EPGActivity : ComponentActivity() {
 
         setContent {
             FastPlayerTheme {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Black)
-                ) {
-                    VideoPlayerWidget(
-                        videoUri = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-                        viewModel = playerViewModel
-                    )
+                RenderPlayer()
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            epgViewModel.playbackState.collect{ action->
+                when(action) {
+                    is PlaybackState.PlaybackSuccess -> {
+                        playbackState.value = PlaybackState.PlaybackSuccess(action.metData)
+                    }
+                    else -> {
+                        // not handling error/failure currently
+                    }
                 }
             }
         }
 
         lifecycleScope.launchWhenStarted {
-            playerViewModel.playerAction.collect{ action->
-                when(action) {
-                    is PlayerAction.Share -> {
-                        Toast.makeText(this@EPGActivity, "Share", Toast.LENGTH_SHORT).show()
-                    }
-                    is PlayerAction.Liked -> {
-                        Toast.makeText(this@EPGActivity, "Liked", Toast.LENGTH_SHORT).show()
-                    }
-                    is PlayerAction.Info -> {
-                        Toast.makeText(this@EPGActivity, "Info", Toast.LENGTH_SHORT).show()
-                    }
-                    else -> { }
+            epgViewModel.epgState.collect{
+                when(it) {
+                    is EPGState.FetchSuccess -> {
+                        epgViewModel.initPlayback(it.list.firstOrNull()?.programs?.first()?.channel?.channelid.orEmpty())
+                     }
+                    else -> {
+                        // not handling error/failure currently
+                     }
                 }
             }
         }
@@ -87,7 +92,18 @@ class EPGActivity : ComponentActivity() {
 
     @Preview(showBackground = true)
     @Composable
-    fun DefaultPreview() {
-
+    fun RenderPlayer() {
+        Column(
+            Modifier
+                .background(color = Color.Black)
+                .fillMaxSize()) {
+            Surface(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .background(Black)
+            ) {
+               VideoPlayerWidget(playbackState = playbackState.value)
+            }
+        }
     }
 }

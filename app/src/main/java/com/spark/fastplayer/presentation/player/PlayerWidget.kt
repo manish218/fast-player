@@ -24,6 +24,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.MediaMetadata
@@ -32,37 +34,38 @@ import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.spark.fastplayer.R
 import com.spark.fastplayer.common.noRippleClickable
 
-
 @SuppressLint("ResourceAsColor")
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun VideoPlayerWidget(
-    videoUri: String,
-    viewModel: PlayerViewModel
-) {
+fun VideoPlayerWidget(playbackState: PlaybackState) {
+
     val context = LocalContext.current
     val exoPlayer = remember {
         ExoPlayer.Builder(context)
-            .build()
-            .apply {
-                setMediaItem(
-                    MediaItem.Builder()
-                        .apply {
-                            setUri(videoUri)
-                            setMediaMetadata(
-                                MediaMetadata.Builder()
-                                    .setDisplayTitle("Streaming Kids Video")
-                                    .build()
-                            )
-                        }
-                        .build()
-                )
-                prepare()
-                playWhenReady = true
+            .build().also {
+                it.prepare()
             }
     }
 
-    var shouldShowControls by remember { mutableStateOf(false) }
+    when (playbackState) {
+        is PlaybackState.PlaybackSuccess -> {
+            RenderPlayerView(exoPlayer, playbackState.metData)
+            exoPlayer.setMediaItem(MediaItem.Builder()
+                .apply {
+                    setUri(playbackState.metData.streamUrl)
+                    setMediaMetadata(
+                        MediaMetadata.Builder().build()
+                    )
+                }
+                .build())
+            exoPlayer.prepare()
+            exoPlayer.playWhenReady = true
+            exoPlayer.play()
+        }
+        else -> {
+
+        }
+    }
 
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
 
@@ -90,97 +93,108 @@ fun VideoPlayerWidget(
                 lifecycle.removeObserver(observer)
             }
         }
+    }
+}
 
-        ConstraintLayout {
-            val (playerView, OverlayView) = createRefs()
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlayBackMetaData?) {
+    var shouldShowControls by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
-            AndroidView(
-                modifier = Modifier
-                    .clickable {
-                        shouldShowControls = shouldShowControls.not()
-                    }
-                    .constrainAs(playerView) {},
-                factory = {
-                    StyledPlayerView(context).apply {
-                        player = exoPlayer
-                        useController = false
-                        resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-                        layoutParams = FrameLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT
+    ConstraintLayout {
+        val (playerView, OverlayView) = createRefs()
+
+        AndroidView(
+            modifier = Modifier
+                .clickable {
+                    shouldShowControls = shouldShowControls.not()
+                }
+                .constrainAs(playerView) {},
+            factory = {
+                StyledPlayerView(context).apply {
+                    player = exoPlayer
+                    useController = false
+                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    layoutParams = FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                }
+            }
+        )
+
+        AnimatedVisibility(
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(OverlayView) {
+                    top.linkTo(playerView.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                    height = Dimension.fillToConstraints
+                },
+            visible = shouldShowControls,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Box(modifier = Modifier.background(Color.Black.copy(alpha = 0.6f))) {
+                TopControl(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .fillMaxWidth()
+                        .animateEnterExit(
+                            enter = slideInVertically(
+                                initialOffsetY = { fullHeight: Int ->
+                                    fullHeight
+                                }
+                            ),
+                            exit = slideOutVertically(
+                                targetOffsetY = { fullHeight: Int ->
+                                    fullHeight
+                                }
+                            )
+                        ),
+                    playBackMetaData = playbackState
+                )
+
+                BottomControls(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .fillMaxWidth()
+                        .animateEnterExit(
+                            enter = slideInVertically(
+                                initialOffsetY = { fullHeight: Int ->
+                                    fullHeight
+                                }
+                            ),
+                            exit = slideOutVertically(
+                                targetOffsetY = { fullHeight: Int ->
+                                    fullHeight
+                                }
+                            )
                         )
-                    }
-                }
-            )
-
-            AnimatedVisibility(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .constrainAs(OverlayView) {
-                        top.linkTo(playerView.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(parent.bottom)
-                        height = Dimension.fillToConstraints
-                    },
-                visible = shouldShowControls,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                Box(modifier = Modifier.background(Color.Black.copy(alpha = 0.6f))) {
-                    TopControl(
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .fillMaxWidth()
-                            .animateEnterExit(
-                                enter = slideInVertically(
-                                    initialOffsetY = { fullHeight: Int ->
-                                        fullHeight
-                                    }
-                                ),
-                                exit = slideOutVertically(
-                                    targetOffsetY = { fullHeight: Int ->
-                                        fullHeight
-                                    }
-                                )
-                            ),
-                        title = { exoPlayer.mediaMetadata.displayTitle.toString() }
-                    )
-
-                    BottomControls(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .fillMaxWidth()
-                            .animateEnterExit(
-                                enter = slideInVertically(
-                                    initialOffsetY = { fullHeight: Int ->
-                                        fullHeight
-                                    }
-                                ),
-                                exit = slideOutVertically(
-                                    targetOffsetY = { fullHeight: Int ->
-                                        fullHeight
-                                    }
-                                )
-                            ),
-                        viewModel = viewModel
-                    )
-                }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun TopControl(modifier: Modifier = Modifier, title: () -> String) {
-    val videoTitle = remember(title()) { title() }
+private fun TopControl(modifier: Modifier = Modifier, playBackMetaData: PlayBackMetaData?) {
 
     Row(modifier = Modifier.padding(top = 16.dp)) {
-        Image(
-            modifier = Modifier.padding(start = 16.dp),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(playBackMetaData?.channelLogoUrl)
+                .crossfade(true)
+                .build(),
             contentScale = ContentScale.Crop,
-            painter = painterResource(id = R.drawable.channel_icon),
-            contentDescription = "channelLogo"
+            placeholder = painterResource(R.drawable.channel_icon),
+            modifier = Modifier
+                .height(40.dp)
+                .width(60.dp),
+            contentDescription = "contentDescription",
         )
 
         Column(
@@ -190,7 +204,7 @@ private fun TopControl(modifier: Modifier = Modifier, title: () -> String) {
 
             Text(
                 modifier = modifier.padding(start = 16.dp),
-                text = videoTitle,
+                text = playBackMetaData?.title.orEmpty(),
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
@@ -209,7 +223,6 @@ private fun TopControl(modifier: Modifier = Modifier, title: () -> String) {
 @Composable
 private fun BottomControls(
     modifier: Modifier = Modifier,
-    viewModel: PlayerViewModel
 ) {
     Column(
         modifier = modifier.padding(bottom = 12.dp),
@@ -230,8 +243,8 @@ private fun BottomControls(
             horizontalArrangement = Arrangement.Start
         ) {
 
-            Box(modifier = Modifier.noRippleClickable(onClick = { viewModel.onLikeClicked() })) {
-            Image(
+            Box(modifier = Modifier.noRippleClickable(onClick = {  /*do action on fav button*/ })) {
+                Image(
                     modifier = Modifier.padding(start = 16.dp, top = 16.dp),
                     contentScale = ContentScale.Crop,
                     painter = painterResource(id = R.drawable.baseline_heart_broken_24),
@@ -239,7 +252,7 @@ private fun BottomControls(
                 )
             }
 
-            Box(modifier = Modifier.noRippleClickable(onClick = { viewModel.onShareClicked() })) {
+            Box(modifier = Modifier.noRippleClickable(onClick = {   /*do action on share button */ })) {
                 Image(
                     modifier = Modifier.padding(start = 16.dp, top = 16.dp),
                     contentScale = ContentScale.Crop,
@@ -248,7 +261,7 @@ private fun BottomControls(
                 )
             }
 
-            Box(modifier = Modifier.noRippleClickable(onClick = { viewModel.onInfoClicked() })) {
+            Box(modifier = Modifier.noRippleClickable(onClick = { /* do action on info button */ })) {
                 Image(
                     modifier = Modifier.padding(start = 16.dp, top = 16.dp),
                     contentScale = ContentScale.Crop,
