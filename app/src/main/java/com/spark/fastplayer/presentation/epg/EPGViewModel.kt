@@ -10,16 +10,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.openapitools.client.apis.EpgApi
-import org.openapitools.client.apis.PlaybackinfoApi
 import javax.inject.Inject
 
 @HiltViewModel
 class EPGViewModel @Inject constructor(
     private val epgRepository: EPGRepository,
-    private val coroutineContextProvider: CoroutineContextProvider,
-    private val epgApi: EpgApi,
-    private val playbackInfoApi: PlaybackinfoApi
+    private val coroutineContextProvider: CoroutineContextProvider
 ) : ViewModel() {
 
     private val _epgState = MutableStateFlow<EPGState>(EPGState.Fetch)
@@ -34,14 +30,14 @@ class EPGViewModel @Inject constructor(
 
     private fun getEPGData() {
         viewModelScope.launch(coroutineContextProvider.io) {
-            val epgData = epgRepository.getEPGData(epgApi)
+            val epgData = epgRepository.getEPGData()
             _epgState.value = EPGState.FetchSuccess(epgData)
         }
     }
 
     fun initPlayback(channelId: String) {
         viewModelScope.launch(coroutineContextProvider.io) {
-            val playbackData = epgRepository.initPlayBack(channelId, playbackInfoApi)
+            val playbackData = epgRepository.getChannelStreamInfo(channelId)
             _playbackState.value = PlaybackState.PlaybackSuccess(
                 PlayBackMetaData(
                     streamUrl = playbackData.streamInfo?.streamUrl.orEmpty(),
