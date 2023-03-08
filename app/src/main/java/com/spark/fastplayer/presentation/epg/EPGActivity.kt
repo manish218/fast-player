@@ -1,23 +1,38 @@
 package com.spark.fastplayer.presentation.epg
 
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.spark.fastplayer.data.repository.EPGData
+import com.spark.fastplayer.presentation.epg.ui.EpgProgramsCollection
+import com.spark.fastplayer.presentation.epg.ui.EpgTaxonomyCollection
 import com.spark.fastplayer.presentation.epg.ui.Feed
+import com.spark.fastplayer.presentation.epg.ui.getSelectedTaxonomyIndex
 import com.spark.fastplayer.presentation.splash.SplashState
 import com.spark.fastplayer.presentation.splash.SplashViewModel
 import com.spark.fastplayer.ui.theme.FastPlayerTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class EPGActivity : ComponentActivity() {
@@ -60,7 +75,6 @@ class EPGActivity : ComponentActivity() {
                     }
 
                     is EPGState.FetchSuccess -> {
-                        epgState.value = EPGState.FetchSuccess(it.list, it.taxonomies)
                         // render UI
                         Toast.makeText(this@EPGActivity, "rendering...", Toast.LENGTH_LONG).show()
                     }

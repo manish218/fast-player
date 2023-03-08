@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -130,8 +129,8 @@ fun EpgProgramsCollection(
             imageUrl = programList.firstOrNull()?.channel?.images?.firstOrNull()?.url.orEmpty(),
             contentDescription = "",
             modifier = Modifier
-                .width(108.dp)
-                .height(60.dp)
+                .width(116.dp)
+                .height(72.dp)
                 .padding(start = 12.dp, end = 6.dp)
         )
         LazyRow(
@@ -139,7 +138,7 @@ fun EpgProgramsCollection(
             contentPadding = PaddingValues(end = 12.dp)
         ) {
             itemsIndexed(programList) { index, program ->
-                ChannelItem(program, onProgramClicked)
+                ProgramCardView(program, onProgramClicked)
             }
         }
     }

@@ -35,11 +35,10 @@ import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.spark.fastplayer.R
+import com.spark.fastplayer.common.isLive
 import com.spark.fastplayer.common.toBroadCastTime
 import com.spark.fastplayer.presentation.epg.ContentType
 import org.openapitools.client.models.Program
-import java.sql.Time
-import java.time.OffsetDateTime
 import kotlin.math.ln
 
 
@@ -49,7 +48,6 @@ fun DefaultView() {
     ChannelName(
         channelName = "The Monster animal",
         broadCastTime = "8:30 - 9:30 PM",
-        contentDescription = "",
         modifier = Modifier
             .height(50.dp)
             .width(120.dp)
@@ -61,7 +59,6 @@ fun ChannelName(
     channelName: String?,
     broadCastTime: String?,
     contentType: ContentType = ContentType.None,
-    contentDescription: String?,
     modifier: Modifier = Modifier,
     elevation: Dp = 0.dp
 ) {
@@ -69,41 +66,52 @@ fun ChannelName(
         color = Color.DarkGray,
         elevation = elevation,
         shape = RoundedCornerShape(8.dp),
-        modifier = modifier
+        modifier = modifier,
+        border = BorderStroke(1.dp, Color.Gray)
     ) {
 
         Column(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-               Text(
+            Row(modifier = Modifier.fillMaxWidth().align(Alignment.Start).padding(start = 10.dp, bottom = 10.dp)) {
+                Text(
                     text = channelName.orEmpty(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = Color.White,
-                    textAlign = TextAlign.Center,
+                    textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+            }
 
-            Text(
-                text = broadCastTime.orEmpty(),
-                fontSize = 12.sp,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Box(modifier = Modifier.background(Color.Red)) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp)
+            ) {
                 Text(
-                    text = if (contentType is ContentType.Live)"Live" else "UpComing",
+                    text = broadCastTime.orEmpty(),
                     fontSize = 12.sp,
                     color = Color.White,
-                    textAlign = TextAlign.Center,
+                    textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+
+                Box(modifier  = Modifier
+                    .background(if (contentType is ContentType.Live) Color.Red else Color.Gray)
+                    .padding(1.dp)) {
+                        Text(
+                            text = if (contentType is ContentType.Live) "Live" else "UpComing",
+                            fontSize = 12.sp,
+                            color = Color.White,
+                            textAlign = TextAlign.End,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
             }
         }
     }
@@ -121,7 +129,8 @@ fun ChannelImage(
         color = Color.LightGray,
         elevation = elevation,
         shape = RoundedCornerShape(6.dp),
-        modifier = modifier
+        modifier = modifier,
+        border = BorderStroke(2.dp, Color.White)
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -131,7 +140,7 @@ fun ChannelImage(
             contentDescription = contentDescription,
             placeholder = painterResource(R.drawable.ic_baseline_connected_tv_24),
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Inside,
         )
     }
 }
@@ -163,13 +172,15 @@ fun JetChannelSurface(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ChannelItem(
+fun ProgramCardView(
     program: Program?,
     onProgramClicked: (String) -> Unit,
-    modifier: Modifier = Modifier
 ) {
     JetChannelSurface(
-        modifier = modifier.padding(
+        modifier = Modifier
+            .width(160.dp)
+            .height(72.dp)
+            .padding(
             start = 4.dp,
             end = 4.dp,
             bottom = 8.dp
@@ -182,26 +193,16 @@ fun ChannelItem(
         ) {
             ChannelName(
                 channelName = program?.channel?.title.orEmpty(),
-                contentType = program?.scheduleEnd?.isLive()!!,
+                contentType = program?.scheduleStart?.isLive(program.scheduleEnd!!)!!,
                 broadCastTime = program.scheduleStart?.toBroadCastTime() + " - " + program?.scheduleEnd?.toBroadCastTime(),
-                contentDescription = "",
                 modifier = Modifier
-                    .width(140.dp)
-                    .height(60.dp)
+                    .width(160.dp)
+                    .height(72.dp)
             )
         }
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun OffsetDateTime.isLive(): ContentType {
-   return if (this.isBefore(OffsetDateTime.now())) {
-        ContentType.Live
-    } else if(this.isAfter(OffsetDateTime.now())) {
-        ContentType.Upcoming
-    }
-    else   ContentType.None
-}
 
 @Composable
 private fun getBackgroundColorForElevation(color: Color, elevation: Dp): Color {
