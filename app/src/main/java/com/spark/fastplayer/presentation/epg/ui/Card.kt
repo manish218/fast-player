@@ -36,7 +36,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.spark.fastplayer.R
 import com.spark.fastplayer.common.toBroadCastTime
+import com.spark.fastplayer.presentation.epg.ContentType
 import org.openapitools.client.models.Program
+import java.sql.Time
+import java.time.OffsetDateTime
 import kotlin.math.ln
 
 
@@ -57,6 +60,7 @@ fun DefaultView() {
 fun ChannelName(
     channelName: String?,
     broadCastTime: String?,
+    contentType: ContentType = ContentType.None,
     contentDescription: String?,
     modifier: Modifier = Modifier,
     elevation: Dp = 0.dp
@@ -70,7 +74,6 @@ fun ChannelName(
 
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
                Text(
@@ -91,6 +94,17 @@ fun ChannelName(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+
+            Box(modifier = Modifier.background(Color.Red)) {
+                Text(
+                    text = if (contentType is ContentType.Live)"Live" else "UpComing",
+                    fontSize = 12.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
@@ -168,7 +182,8 @@ fun ChannelItem(
         ) {
             ChannelName(
                 channelName = program?.channel?.title.orEmpty(),
-                broadCastTime = program?.scheduleStart?.toBroadCastTime() + " - " + program?.scheduleEnd?.toBroadCastTime(),
+                contentType = program?.scheduleEnd?.isLive()!!,
+                broadCastTime = program.scheduleStart?.toBroadCastTime() + " - " + program?.scheduleEnd?.toBroadCastTime(),
                 contentDescription = "",
                 modifier = Modifier
                     .width(140.dp)
@@ -176,6 +191,16 @@ fun ChannelItem(
             )
         }
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun OffsetDateTime.isLive(): ContentType {
+   return if (this.isBefore(OffsetDateTime.now())) {
+        ContentType.Live
+    } else if(this.isAfter(OffsetDateTime.now())) {
+        ContentType.Upcoming
+    }
+    else   ContentType.None
 }
 
 @Composable
