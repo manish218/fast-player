@@ -27,7 +27,7 @@ android {
         release {
             buildConfigField "String", "API_URL", "\"https://0itfjctli1.execute-api.eu-west-2.amazonaws.com/prod-1\""
             buildConfigField "String", "X_API_KEY", "\"KJ2TSNFNM77loRy5yrwBH9NqVKrhukqF96UCtvVV\""
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -104,4 +104,3 @@ dependencies {
 
 
 }
-

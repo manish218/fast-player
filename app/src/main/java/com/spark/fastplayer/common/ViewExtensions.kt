@@ -9,6 +9,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.Color
+import com.spark.fastplayer.presentation.epg.ContentType
+import java.time.Instant
+import java.time.OffsetDateTime
+import kotlin.random.Random
 
 inline fun Modifier.noRippleClickable(
     crossinline onClick: () -> Unit

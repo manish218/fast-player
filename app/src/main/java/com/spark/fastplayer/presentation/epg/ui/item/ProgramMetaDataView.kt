@@ -33,7 +33,7 @@ fun ProgramCardView(
             ChannelMetaDataView(
                 channelName = program?.channel?.title.orEmpty(),
                 contentType = program?.scheduleStart?.isLive(program.scheduleEnd!!)!!,
-                broadCastTime = program.scheduleStart?.toBroadCastTime() + " - " + program?.scheduleEnd?.toBroadCastTime()
+                broadCastTime = program.scheduleStart?.toBroadCastTime() + " - " + program.scheduleEnd?.toBroadCastTime()
             )
         }
     }

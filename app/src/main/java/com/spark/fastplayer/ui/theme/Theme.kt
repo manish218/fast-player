@@ -69,13 +69,6 @@ fun FastPlayerTheme(
             ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
         }
     }
-    val sysUiController = rememberSystemUiController()
-    SideEffect {
-        sysUiController.setSystemBarsColor(
-            color = Color.Black.copy(alpha = 0.8f)
-        )
-    }
-
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
