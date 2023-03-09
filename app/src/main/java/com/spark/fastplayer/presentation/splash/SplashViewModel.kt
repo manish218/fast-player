@@ -25,6 +25,6 @@ class SplashViewModel @Inject constructor(private val coroutineContextProvider: 
     }
 
     companion object {
-        private const val SPLASH_DELAY_TIMER = 1000L
+        private const val SPLASH_DELAY_TIMER = 3000L
     }
 }

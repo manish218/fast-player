@@ -19,7 +19,7 @@
         <activity
             android:name=".presentation.epg.EPGActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|layoutDirection"
             android:theme="@style/Theme.App.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
