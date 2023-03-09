@@ -4,13 +4,14 @@ import android.os.Build
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
-import com.spark.fastplayer.presentation.epg.ContentType
+import com.spark.fastplayer.presentation.epg.StreamType
 import java.time.Instant
 import java.time.OffsetDateTime
 import kotlin.random.Random
@@ -64,16 +65,19 @@ fun OffsetDateTime.toBroadCastTime(): String? {
         TODO("VERSION.SDK_INT < O")
     }
 }
-fun OffsetDateTime.isLive(scheduleEndTime: OffsetDateTime): ContentType {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-         if (Instant.now().isBefore(this.toInstant())) {
-            ContentType.Upcoming
-        } else if (Instant.now().isAfter(this.toInstant()) && Instant.now()
-                .isBefore(scheduleEndTime.toInstant())
-        ) {
-            ContentType.Live
-        } else ContentType.None
-    } else {
-        TODO("VERSION.SDK_INT < O")
+fun OffsetDateTime?.getStreamType(scheduleEndTime: OffsetDateTime?): StreamType {
+    return if (this == null || scheduleEndTime == null) StreamType.None
+    else {
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+             if (Instant.now().isBefore(this.toInstant())) {
+                 StreamType.Upcoming
+             } else if (Instant.now().isAfter(this.toInstant()) && Instant.now()
+                     .isBefore(scheduleEndTime.toInstant())
+             ) {
+                 StreamType.Live
+             } else StreamType.None
+         } else {
+             TODO("VERSION.SDK_INT < O")
+         }
     }
 }

@@ -15,14 +15,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.spark.fastplayer.presentation.epg.ContentType
+import com.spark.fastplayer.presentation.epg.StreamType
 import com.spark.fastplayer.presentation.epg.ui.EPGCardItemSurface
 
 @Composable
 fun ChannelMetaDataView(
-    channelName: String?,
-    broadCastTime: String?,
-    contentType: ContentType = ContentType.None,
+    channelName: String,
+    broadCastTime: String,
+    streamType: StreamType = StreamType.None,
     elevation: Dp = 0.dp
 ) {
     EPGCardItemSurface(
@@ -39,7 +39,7 @@ fun ChannelMetaDataView(
         ) {
             Row(modifier = Modifier.fillMaxWidth().align(Alignment.Start).padding(start = 10.dp, bottom = 10.dp)) {
                 Text(
-                    text = channelName.orEmpty(),
+                    text = channelName,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = Color.White,
@@ -54,7 +54,7 @@ fun ChannelMetaDataView(
                 modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp)
             ) {
                 Text(
-                    text = broadCastTime.orEmpty(),
+                    text = broadCastTime,
                     fontSize = 12.sp,
                     color = Color.White,
                     textAlign = TextAlign.Start,
@@ -63,10 +63,10 @@ fun ChannelMetaDataView(
                 )
 
                 Box(modifier  = Modifier
-                    .background(if (contentType is ContentType.Live) Color.Red else Color.Gray)
+                    .background(if (streamType is StreamType.Live) Color.Red else Color.Gray)
                     .padding(1.dp)) {
                     Text(
-                        text = if (contentType is ContentType.Live) "Live" else "UpComing",
+                        text = if (streamType is StreamType.Live) "Live" else "UpComing",
                         fontSize = 12.sp,
                         color = Color.White,
                         textAlign = TextAlign.End,
