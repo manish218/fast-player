@@ -1,38 +1,28 @@
 package com.spark.fastplayer.presentation.epg
 
-import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.spark.fastplayer.data.repository.EPGData
-import com.spark.fastplayer.presentation.epg.ui.EpgProgramsCollection
-import com.spark.fastplayer.presentation.epg.ui.EpgTaxonomyCollection
-import com.spark.fastplayer.presentation.epg.ui.Feed
-import com.spark.fastplayer.presentation.epg.ui.getSelectedTaxonomyIndex
+import com.spark.fastplayer.presentation.epg.ui.grid.FeedEPGData
 import com.spark.fastplayer.presentation.splash.SplashState
 import com.spark.fastplayer.presentation.splash.SplashViewModel
 import com.spark.fastplayer.ui.theme.FastPlayerTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class EPGActivity : ComponentActivity() {
@@ -42,6 +32,8 @@ class EPGActivity : ComponentActivity() {
     private val epgViewModel: EPGViewModel by viewModels()
 
     private var epgState = mutableStateOf<EPGState>(EPGState.Fetch)
+
+    private var showLoading = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,9 +45,10 @@ class EPGActivity : ComponentActivity() {
 
         setContent {
             FastPlayerTheme {
+                showLoading(showLoading.value)
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Feed(onProgramClick = { }, epgState = epgState.value)
+                    FeedEPGData(onProgramClick = { }, epgState = epgState.value)
                 }
             }
         }
@@ -71,24 +64,16 @@ class EPGActivity : ComponentActivity() {
 
                 when(it) {
                     is EPGState.Fetch -> {
-                        Toast.makeText(this@EPGActivity, "hello", Toast.LENGTH_LONG).show()
+                        showLoading.value = true
                     }
 
                     is EPGState.FetchSuccess -> {
-                        // render UI
-                        Toast.makeText(this@EPGActivity, "rendering...", Toast.LENGTH_LONG).show()
-                    }
-
-                    is EPGState.FetchSuccessSortedData -> {
-                        epgState.value = EPGState.FetchSuccessSortedData(it.map, it.taxonomies)
-                        // render UI
-                        Toast.makeText(this@EPGActivity, "rendering...", Toast.LENGTH_LONG).show()
+                        epgState.value = EPGState.FetchSuccess(it.map, it.taxonomies)
+                        showLoading.value = false
                     }
 
                     is EPGState.FetchError -> {
                         // display error UI
-                        Toast.makeText(this@EPGActivity, "Error...", Toast.LENGTH_LONG).show()
-
                     }
 
                     else -> {
@@ -101,8 +86,23 @@ class EPGActivity : ComponentActivity() {
 }
 
 @Composable
-fun DefaultPreview(epgData: EPGData) {
-    FastPlayerTheme {
-       //Feed(onProgramClick = { }, epgData = epgData)
-     }
+fun showLoading(showDialogValue: Boolean) {
+
+    if (showDialogValue) {
+        Dialog(
+            onDismissRequest = {   },
+            DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+        ) {
+            Box(
+                contentAlignment= Alignment.Center,
+                modifier = Modifier
+                    .size(100.dp)
+                    .background(Color.DarkGray, shape = RoundedCornerShape(8.dp))
+            ) {
+                /*TO DO */
+                 //current theme doesn't support loading indicator
+                //CircularProgressIndicator(LocalContext.current)
+            }
+        }
+    }
 }

@@ -51,7 +51,7 @@ fun TaxonomyLabel(
     elevation: Dp = 2.dp,
 ) {
 
-    JetChannelSurface(
+    EPGCardItemSurface(
         color = Color.Companion.random(),
         elevation = elevation,
         shape = RoundedCornerShape(8.dp),

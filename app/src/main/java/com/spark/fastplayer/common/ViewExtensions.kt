@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import com.spark.fastplayer.presentation.epg.ContentType
 import java.time.Instant
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.random.Random
@@ -17,16 +18,23 @@ fun Color.Companion.random() : Color {
     return Color(red, green, blue)
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun OffsetDateTime.toBroadCastTime(): String? {
-    return this.toOffsetTime().toLocalTime().toString()
-}
-@RequiresApi(Build.VERSION_CODES.O)
-fun OffsetDateTime.isLive(scheduleEndTime: OffsetDateTime): ContentType {
-    return  if(Instant.now().isBefore(this.toInstant())) {
-        ContentType.Upcoming
-    } else if (Instant.now().isAfter(this.toInstant()) && Instant.now().isBefore(scheduleEndTime.toInstant())) {
-        ContentType.Live
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        this.toOffsetTime().toLocalTime().toString()
+    } else {
+        TODO("VERSION.SDK_INT < O")
     }
-    else ContentType.None
+}
+fun OffsetDateTime.isLive(scheduleEndTime: OffsetDateTime): ContentType {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+         if (Instant.now().isBefore(this.toInstant())) {
+            ContentType.Upcoming
+        } else if (Instant.now().isAfter(this.toInstant()) && Instant.now()
+                .isBefore(scheduleEndTime.toInstant())
+        ) {
+            ContentType.Live
+        } else ContentType.None
+    } else {
+        TODO("VERSION.SDK_INT < O")
+    }
 }

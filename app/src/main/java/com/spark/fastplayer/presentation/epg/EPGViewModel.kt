@@ -1,11 +1,8 @@
 package com.spark.fastplayer.presentation.epg
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.spark.fastplayer.common.CoroutineContextProvider
-import com.spark.fastplayer.data.repository.EPGRepositoryImpl
-import com.spark.fastplayer.data.repository.TaxonomyPrograms
 import com.spark.fastplayer.domain.repository.EPGRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +10,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.openapitools.client.apis.EpgApi
 import org.openapitools.client.models.EpgRow
-import org.openapitools.client.models.Program
 import org.openapitools.client.models.Taxonomy
 import javax.inject.Inject
 
@@ -42,7 +38,7 @@ class EPGViewModel @Inject constructor(
                 set.add(tx)
                 return@groupBy tx
             }
-            _epgState.value = EPGState.FetchSuccessSortedData(map.toList(), set.toList())
+            _epgState.value = EPGState.FetchSuccess(map.toList(), set.toList())
         }
 
     }

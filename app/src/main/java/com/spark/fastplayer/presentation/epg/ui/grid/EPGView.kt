@@ -1,7 +1,5 @@
-package com.spark.fastplayer.presentation.epg.ui
+package com.spark.fastplayer.presentation.epg.ui.grid
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -18,22 +16,26 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.spark.fastplayer.presentation.epg.EPGState
+import com.spark.fastplayer.presentation.epg.ui.item.ChannelLogoView
+import com.spark.fastplayer.presentation.epg.ui.EPGCardItemSurface
+import com.spark.fastplayer.presentation.epg.ui.EpgTaxonomyCollection
+import com.spark.fastplayer.presentation.epg.ui.item.ProgramCardView
 import kotlinx.coroutines.launch
 import org.openapitools.client.models.EpgRow
 import org.openapitools.client.models.Program
 import org.openapitools.client.models.Taxonomy
 
 @Composable
-fun Feed(
+fun FeedEPGData(
     onProgramClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     epgState: EPGState
 ) {
     when (epgState) {
-        is EPGState.FetchSuccessSortedData -> {
+        is EPGState.FetchSuccess -> {
             val epgRowCollection = remember { epgState.map }
             val taxonomyCollection = remember { epgState.taxonomies }
-            Feed(
+            RenderEPGGrid(
                 epgRowCollection,
                 taxonomyCollection,
                 onProgramClick,
@@ -46,17 +48,14 @@ fun Feed(
 
 
 @Composable
-private fun Feed(
+private fun RenderEPGGrid(
     epgRowCollection: List<Pair<Taxonomy?, List<EpgRow>>>,
     filters: List<Taxonomy?>,
     onProgramClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-    JetChannelSurface(modifier = modifier.fillMaxSize()) {
-        Box {
-            RenderEPGRowsCollections(epgRowCollection, filters, onProgramClick)
-        }
+    EPGCardItemSurface(modifier = modifier.fillMaxSize()) {
+        RenderEPGRowsCollections(epgRowCollection, filters, onProgramClick)
     }
 }
 
@@ -68,16 +67,14 @@ private fun RenderEPGRowsCollections(
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
-    val scope  = rememberCoroutineScope()
-    val scope1  = rememberCoroutineScope()
-
+    val scope = rememberCoroutineScope()
 
     Column(modifier) {
         LazyColumn(state = listState) {
             item {
                 Spacer(
                     Modifier.windowInsetsTopHeight(
-                        WindowInsets.statusBars.add(WindowInsets(top = 56.dp))
+                        WindowInsets.statusBars.add(WindowInsets(top = 28.dp))
                     )
                 )
                 EpgTaxonomyCollection(taxonomyList = taxonomies, onTaxonomySelected = {
@@ -96,7 +93,7 @@ private fun RenderEPGRowsCollections(
                     )
                 )
                 Text(
-                   text = list.second[0].programs?.firstOrNull()?.taxonomies?.firstOrNull()?.title.orEmpty(),
+                    text = list.second.firstOrNull()?.programs?.firstOrNull()?.taxonomies?.firstOrNull()?.title.orEmpty(),
                     modifier = modifier
                         .wrapContentHeight(align = Alignment.CenterVertically)
                         .padding(12.dp),
@@ -108,16 +105,13 @@ private fun RenderEPGRowsCollections(
                     overflow = TextOverflow.Ellipsis
                 )
                 list.second.forEach {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        EpgProgramsCollection(it.programs!!, onProgramClick)
-                    }
+                    EpgProgramsCollection(it.programs.orEmpty(), onProgramClick)
                 }
             }
         }
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EpgProgramsCollection(
     programList: List<Program>,
@@ -125,7 +119,7 @@ fun EpgProgramsCollection(
     modifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier) {
-        ChannelImage(
+        ChannelLogoView(
             imageUrl = programList.firstOrNull()?.channel?.images?.firstOrNull()?.url.orEmpty(),
             contentDescription = "",
             modifier = Modifier
@@ -145,7 +139,7 @@ fun EpgProgramsCollection(
 }
 
 fun getSelectedTaxonomyIndex(taxonomyId: String, epgRow: List<Pair<Taxonomy?, List<EpgRow>>>): Int {
-   return epgRow.indexOfFirst {
+    return epgRow.indexOfFirst {
         it.second.firstOrNull()?.programs?.firstOrNull()?.taxonomies?.firstOrNull()?.taxonomyId == taxonomyId
     }
 }
