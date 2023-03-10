@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.sp
 import com.spark.fastplayer.presentation.epg.EPGState
 import com.spark.fastplayer.presentation.epg.ui.item.ChannelLogoView
 import com.spark.fastplayer.presentation.epg.ui.EPGCardItemSurface
-import com.spark.fastplayer.presentation.epg.ui.EpgTaxonomyCollection
 import com.spark.fastplayer.presentation.epg.ui.item.ProgramCardView
 import kotlinx.coroutines.launch
 import org.openapitools.client.models.EpgRow
@@ -119,14 +118,16 @@ fun EpgProgramsCollection(
     modifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier) {
-        ChannelLogoView(
-            imageUrl = programList.firstOrNull()?.channel?.images?.firstOrNull()?.url.orEmpty(),
-            contentDescription = "",
-            modifier = Modifier
-                .width(116.dp)
-                .height(72.dp)
-                .padding(start = 12.dp, end = 6.dp)
-        )
+        if (programList.isNotEmpty()) {
+            ChannelLogoView(
+                imageUrl = programList.firstOrNull()?.channel?.images?.firstOrNull()?.url.orEmpty(),
+                contentDescription = "",
+                modifier = Modifier
+                    .width(116.dp)
+                    .height(72.dp)
+                    .padding(start = 12.dp, end = 6.dp)
+            )
+        }
         LazyRow(
             modifier = modifier,
             contentPadding = PaddingValues(end = 12.dp)
