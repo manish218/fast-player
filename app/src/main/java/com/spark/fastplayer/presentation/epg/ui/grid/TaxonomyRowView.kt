@@ -1,4 +1,4 @@
-package com.spark.fastplayer.presentation.epg.ui
+package com.spark.fastplayer.presentation.epg.ui.grid
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.spark.fastplayer.common.random
+import com.spark.fastplayer.presentation.epg.ui.EPGCardItemSurface
 import org.openapitools.client.models.Taxonomy
 
 @Composable
@@ -30,16 +31,18 @@ fun EpgTaxonomyCollection(
         contentPadding = PaddingValues( end = 12.dp)
     ) {
         itemsIndexed(taxonomyList) { _, taxonomy ->
-            TaxonomyLabel(
-                txName = taxonomy?.title.orEmpty(),
-                modifier = modifier
-                    .height(48.dp)
-                    .padding(start = 0.dp)
-                    .wrapContentWidth()
-                    .clickable {
-                        onTaxonomySelected.invoke(taxonomy?.taxonomyId.orEmpty())
-                    },
-            )
+            taxonomy?.title?.let {
+                TaxonomyLabel(
+                    txName = taxonomy.title.orEmpty(),
+                    modifier = modifier
+                        .height(48.dp)
+                        .padding(start = 0.dp)
+                        .wrapContentWidth()
+                        .clickable {
+                            onTaxonomySelected.invoke(taxonomy.taxonomyId.orEmpty())
+                        },
+                )
+            }
         }
     }
 }
@@ -52,7 +55,7 @@ fun TaxonomyLabel(
 ) {
 
     EPGCardItemSurface(
-        color = Color.Companion.random(),
+        color = Color.random(),
         elevation = elevation,
         shape = RoundedCornerShape(8.dp),
         modifier = modifier.padding(

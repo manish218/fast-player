@@ -57,7 +57,7 @@ class EPGViewModel @Inject constructor(
             val map: Map<Taxonomy?, List<EpgRow>> = epgList.groupBy { epgRow ->
                val tx =  epgRow.programs?.firstOrNull()?.taxonomies?.firstOrNull()
                 set.add(tx)
-                return@groupBy tx
+                tx
             }
             _epgState.value = EPGState.FetchSuccess(map.toList(), set.toList())
         }

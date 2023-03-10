@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -47,8 +46,6 @@ class EPGActivity : ComponentActivity() {
 
     private var epgState = mutableStateOf<EPGState>(EPGState.Fetch)
 
-    private var showLoading = mutableStateOf(false)
-
     private var playbackState = mutableStateOf<PlaybackState>(PlaybackState.None)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +58,7 @@ class EPGActivity : ComponentActivity() {
 
         setContent {
             FastPlayerTheme {
-                showLoading(showLoading.value)
+                showLoading(epgState.value)
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -89,23 +86,14 @@ class EPGActivity : ComponentActivity() {
         }
 
         lifecycleScope.launchWhenStarted {
-
             epgViewModel.epgState.collect {
-
                 when (it) {
-                    is EPGState.Fetch -> {
-                        showLoading.value = true
-                    }
-
                     is EPGState.FetchSuccess -> {
                         epgState.value = EPGState.FetchSuccess(it.map, it.taxonomies)
-                        showLoading.value = false
                     }
-
                     is EPGState.FetchError -> {
                         // display error UI
                     }
-
                     else -> {
 
                     }
@@ -125,9 +113,9 @@ class EPGActivity : ComponentActivity() {
 
 
     @Composable
-    fun showLoading(showDialogValue: Boolean) {
+    fun showLoading(ePGState: EPGState) {
 
-        if (showDialogValue) {
+        if (ePGState == EPGState.Fetch) {
             Dialog(
                 onDismissRequest = { },
                 DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
