@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SplashViewModel @Inject constructor(coroutineContextProvider: CoroutineContextProvider)  : ViewModel() {
+class SplashViewModel @Inject constructor(private val coroutineContextProvider: CoroutineContextProvider)  : ViewModel() {
 
     private val _splashState = MutableStateFlow<SplashState>(SplashState.Init)
     val splashState = _splashState.asStateFlow()
@@ -25,6 +25,6 @@ class SplashViewModel @Inject constructor(coroutineContextProvider: CoroutineCon
     }
 
     companion object {
-        private const val SPLASH_DELAY_TIMER = 3000L
+        private const val SPLASH_DELAY_TIMER = 1000L
     }
 }
