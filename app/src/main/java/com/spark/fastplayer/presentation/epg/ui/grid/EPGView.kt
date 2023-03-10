@@ -86,23 +86,20 @@ private fun RenderEPGRowsCollections(
 
         LazyColumn(state = listState) {
             itemsIndexed(epgRow) { _, list ->
-                Spacer(
-                    Modifier.windowInsetsTopHeight(
-                        WindowInsets.statusBars.add(WindowInsets(top = 16.dp))
+                if (list.first!=null) {
+                    Text(
+                        text = list.second.firstOrNull()?.programs?.firstOrNull()?.taxonomies?.firstOrNull()?.title.orEmpty(),
+                        modifier = modifier
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .padding(12.dp),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                )
-                Text(
-                    text = list.second.firstOrNull()?.programs?.firstOrNull()?.taxonomies?.firstOrNull()?.title.orEmpty(),
-                    modifier = modifier
-                        .wrapContentHeight(align = Alignment.CenterVertically)
-                        .padding(12.dp),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                }
                 list.second.forEach {
                     EpgProgramsCollection(it.programs.orEmpty(), onProgramClick)
                 }

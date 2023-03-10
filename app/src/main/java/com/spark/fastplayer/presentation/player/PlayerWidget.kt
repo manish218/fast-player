@@ -35,7 +35,6 @@ import com.spark.fastplayer.R
 import com.spark.fastplayer.common.noRippleClickable
 
 @SuppressLint("ResourceAsColor")
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun VideoPlayerWidget(playbackState: PlaybackState) {
 
@@ -109,7 +108,7 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlayBackMetaDa
             modifier = Modifier
                 .clickable {
                     shouldShowControls = shouldShowControls.not()
-                }
+                }.background(Color.Black)
                 .constrainAs(playerView) {},
             factory = {
                 StyledPlayerView(context).apply {
