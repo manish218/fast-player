@@ -63,12 +63,7 @@ class EPGActivity : ComponentActivity() {
             FastPlayerTheme {
                 showLoading(showLoading.value)
                 // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    FeedEPGData(onProgramClick = { }, epgState = epgState.value)
-                }
+                RenderPlayer()
             }
         }
         renderEPGData()
@@ -150,11 +145,7 @@ class EPGActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun RenderPlayer() {
-        Column(
-            Modifier
-                .background(color = Color.Black)
-                .fillMaxSize()
-        ) {
+        Column{
             Surface(
                 modifier = Modifier
                     .wrapContentSize()
@@ -162,6 +153,18 @@ class EPGActivity : ComponentActivity() {
             ) {
                 VideoPlayerWidget(playbackState = playbackState.value)
             }
+
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+
+                FeedEPGData(
+                    onProgramClick = { epgViewModel.initPlayback(it) },
+                    epgState = epgState.value
+                )
+            }
+
         }
     }
 }

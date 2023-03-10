@@ -74,7 +74,7 @@ private fun RenderEPGRowsCollections(
             item {
                 Spacer(
                     Modifier.windowInsetsTopHeight(
-                        WindowInsets.statusBars.add(WindowInsets(top = 28.dp))
+                        WindowInsets.statusBars.add(WindowInsets(top = 10.dp))
                     )
                 )
                 EpgTaxonomyCollection(taxonomyList = taxonomies, onTaxonomySelected = {
@@ -89,7 +89,7 @@ private fun RenderEPGRowsCollections(
             itemsIndexed(epgRow) { _, list ->
                 Spacer(
                     Modifier.windowInsetsTopHeight(
-                        WindowInsets.statusBars.add(WindowInsets(top = 28.dp))
+                        WindowInsets.statusBars.add(WindowInsets(top = 16.dp))
                     )
                 )
                 Text(

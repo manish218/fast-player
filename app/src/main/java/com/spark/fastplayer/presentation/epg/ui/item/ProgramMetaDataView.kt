@@ -28,7 +28,7 @@ fun ProgramCardView(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.width(160.dp)
                 .height(72.dp)
-                .clickable(onClick = { onProgramClicked(program.channel?.url.orEmpty()) }).fillMaxSize()
+                .clickable(onClick = { onProgramClicked(program.channel?.channelid.orEmpty()) }).fillMaxSize()
         ) {
             ChannelMetaDataView(
                 channelName = program.channel?.title.orEmpty(),
