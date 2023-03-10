@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.spark.fastplayer.common.getStreamType
 import com.spark.fastplayer.common.toBroadCastTime
+import com.spark.fastplayer.presentation.epg.StreamType
 import com.spark.fastplayer.presentation.epg.ui.EPGCardItemSurface
 import org.openapitools.client.models.Program
 
@@ -26,9 +27,15 @@ fun ProgramCardView(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.width(160.dp)
+            modifier = Modifier
+                .width(160.dp)
                 .height(72.dp)
-                .clickable(onClick = { onProgramClicked(program.channel?.channelid.orEmpty()) }).fillMaxSize()
+                .clickable(onClick = {
+                    if (program.scheduleStart.getStreamType(program.scheduleEnd) == StreamType.Live) {
+                        onProgramClicked(program.channel?.channelid.orEmpty())
+                    }
+                })
+                .fillMaxSize()
         ) {
             ChannelMetaDataView(
                 channelName = program.channel?.title.orEmpty(),

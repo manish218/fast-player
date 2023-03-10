@@ -2,7 +2,6 @@ package com.spark.fastplayer.presentation.epg
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -141,18 +140,15 @@ class EPGActivity : ComponentActivity() {
             ) {
                 VideoPlayerWidget(playbackState = playbackState.value)
             }
-
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-
                 FeedEPGData(
                     onProgramClick = { epgViewModel.initPlayback(it) },
                     epgState = epgState.value
                 )
             }
-
         }
     }
 }
