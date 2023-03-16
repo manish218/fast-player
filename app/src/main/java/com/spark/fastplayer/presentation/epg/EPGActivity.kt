@@ -1,5 +1,6 @@
 package com.spark.fastplayer.presentation.epg
 
+import BottomSheetLayout
 import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.Toast
@@ -58,13 +59,14 @@ class EPGActivity : ComponentActivity() {
 
         setContent {
             FastPlayerTheme {
-                showLoading(epgState.value)
+             //   showLoading(epgState.value)
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    FeedEPGData(onProgramClick = { }, epgState = epgState.value)
+                    BottomSheetLayout()
+                  //  FeedEPGData(onProgramClick = { }, epgState = epgState.value)
                 }
             }
         }
