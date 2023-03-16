@@ -27,6 +27,7 @@ import org.openapitools.client.models.Taxonomy
 @Composable
 fun FeedEPGData(
     onProgramClick: (String) -> Unit,
+    onProgramLongClick: (Program) -> Unit,
     modifier: Modifier = Modifier,
     epgState: EPGState
 ) {
@@ -38,6 +39,7 @@ fun FeedEPGData(
                 epgRowCollection,
                 taxonomyCollection,
                 onProgramClick,
+                onProgramLongClick,
                 modifier
             )
         }
@@ -51,10 +53,11 @@ private fun RenderEPGGrid(
     epgRowCollection: List<Pair<Taxonomy?, List<EpgRow>>>,
     filters: List<Taxonomy?>,
     onProgramClick: (String) -> Unit,
+    onProgramLongClick: (Program) -> Unit,
     modifier: Modifier = Modifier
 ) {
     EPGCardItemSurface(modifier = modifier.fillMaxSize()) {
-        RenderEPGRowsCollections(epgRowCollection, filters, onProgramClick)
+        RenderEPGRowsCollections(epgRowCollection, filters, onProgramClick,onProgramLongClick)
     }
 }
 
@@ -63,6 +66,7 @@ private fun RenderEPGRowsCollections(
     epgRow: List<Pair<Taxonomy?, List<EpgRow>>>,
     taxonomies: List<Taxonomy?>,
     onProgramClick: (String) -> Unit,
+    onProgramLongClick: (Program) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -104,7 +108,7 @@ private fun RenderEPGRowsCollections(
                     overflow = TextOverflow.Ellipsis
                 )
                 list.second.forEach {
-                    EpgProgramsCollection(it.programs.orEmpty(), onProgramClick)
+                    EpgProgramsCollection(it.programs.orEmpty(), onProgramClick, onProgramLongClick)
                 }
             }
         }
@@ -115,6 +119,7 @@ private fun RenderEPGRowsCollections(
 fun EpgProgramsCollection(
     programList: List<Program>,
     onProgramClicked: (String) -> Unit,
+    onProgramLongClick: (Program) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier) {
@@ -133,7 +138,7 @@ fun EpgProgramsCollection(
             contentPadding = PaddingValues(end = 12.dp)
         ) {
             itemsIndexed(programList) { index, program ->
-                ProgramCardView(program, onProgramClicked)
+                ProgramCardView(program, onProgramClicked, onProgramLongClick)
             }
         }
     }

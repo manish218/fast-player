@@ -65,8 +65,10 @@ class EPGActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    BottomSheetLayout()
-                  //  FeedEPGData(onProgramClick = { }, epgState = epgState.value)
+                    ShowProgramBottomSheet(epgState.value)
+                   FeedEPGData(onProgramClick = { }, epgState = epgState.value, onProgramLongClick = {
+                       epgState.value = EPGState.ShowProgramPopUp(it)
+                   })
                 }
             }
         }
@@ -133,6 +135,13 @@ class EPGActivity : ComponentActivity() {
                     //CircularProgressIndicator(LocalContext.current)
                 }
             }
+        }
+    }
+
+    @Composable
+    fun ShowProgramBottomSheet(ePGState: EPGState) {
+        if (ePGState is EPGState.ShowProgramPopUp) {
+            BottomSheetLayout(ePGState.program)
         }
     }
 

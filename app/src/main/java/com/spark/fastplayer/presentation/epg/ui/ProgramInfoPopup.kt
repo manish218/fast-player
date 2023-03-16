@@ -18,57 +18,36 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.spark.fastplayer.R
+import com.spark.fastplayer.common.toBroadCastTime
 import com.spark.fastplayer.presentation.epg.StreamType
 import kotlinx.coroutines.launch
+import org.openapitools.client.models.Program
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BottomSheetLayout() {
+fun BottomSheetLayout(program: Program) {
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
-        //skipHalfExpanded = true
+        initialValue = ModalBottomSheetValue.Expanded
     )
 
     ModalBottomSheetLayout(
         sheetState = modalSheetState,
         sheetContent = {
             Column {
-                sheetContent()
+                SheetContent(program)
             }
         },
         sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-    ) {
-        Scaffold {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it),
-                contentAlignment = Alignment.Center,
-            ) {
-
-                Button(
-                    onClick = {
-                        coroutineScope.launch {
-                            if (modalSheetState.isVisible)
-                                modalSheetState.hide()
-                            else
-                                modalSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                        }
-                    },
-                ) {
-                    Text(text = "Open Sheet")
-                }
-            }
-        }
-    }
+        scrimColor = Color.Transparent,
+        sheetBackgroundColor =  Color.Transparent
+    ){}
 }
 
 @Composable
-fun sheetContent() {
+fun SheetContent(program: Program) {
     Row(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        modifier = Modifier.fillMaxWidth().wrapContentHeight().background(color = Color.DarkGray),
         horizontalArrangement = Arrangement.SpaceBetween
 
     ) {
@@ -76,7 +55,6 @@ fun sheetContent() {
             modifier = Modifier
                 .height(280.dp)
                 .width(260.dp)
-                .background(Color.Black)
                 .padding(start = 12.dp),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.SpaceEvenly
@@ -89,7 +67,7 @@ fun sheetContent() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 androidx.compose.material3.Text(
-                    text = "Fashion TV Europe",
+                    text = program.channel?.title.orEmpty(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp,
                     color = Color.White,
@@ -105,7 +83,7 @@ fun sheetContent() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 androidx.compose.material3.Text(
-                    text = "19:30 - 20:30",
+                    text = program.scheduleStart?.toBroadCastTime() + " - " + program.scheduleEnd?.toBroadCastTime(),
                     fontSize = 18.sp,
                     color = Color.White,
                     textAlign = TextAlign.Start,
@@ -129,7 +107,7 @@ fun sheetContent() {
             }
 
             androidx.compose.material3.Text(
-                text = "Fashion TV",
+                text = program.channel?.description.orEmpty(),
                 fontSize = 18.sp,
                 color = Color.White,
                 textAlign = TextAlign.Start,
@@ -138,11 +116,11 @@ fun sheetContent() {
             )
             Box(
                 modifier = Modifier
-                    .background(Color.DarkGray)
+                    .background(Color.Blue)
                     .padding(8.dp)
             ) {
                 androidx.compose.material3.Text(
-                    text = "Entertainment",
+                    text = program.channel?.taxonomies?.firstOrNull()?.title.orEmpty(),
                     fontSize = 16.sp,
                     color = Color.White,
                     textAlign = TextAlign.End,
@@ -153,14 +131,13 @@ fun sheetContent() {
 
         Box(
             modifier = Modifier
-                .width(100.dp)
+                .width(120.dp)
                 .height(200.dp)
-                .background(Color.Black)
                 .padding(top = 44.dp, end = 12.dp)
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    //.data("imageUrl")
+                    .data(program.channel?.url.orEmpty())
                     .crossfade(true)
                     .build(),
                 contentDescription = "",
@@ -171,7 +148,7 @@ fun sheetContent() {
 
             androidx.compose.material3.Text(
                 modifier = Modifier.padding(top = 12.dp),
-                text = "Fashion",
+                text = program.channel?.title.orEmpty(),
                 fontSize = 18.sp,
                 color = Color.White,
                 textAlign = TextAlign.Start,

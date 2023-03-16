@@ -1,6 +1,8 @@
 package com.spark.fastplayer.presentation.epg.ui.item
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -11,10 +13,12 @@ import com.spark.fastplayer.common.toBroadCastTime
 import com.spark.fastplayer.presentation.epg.ui.EPGCardItemSurface
 import org.openapitools.client.models.Program
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProgramCardView(
     program: Program,
     onProgramClicked: (String) -> Unit,
+    onLongPressedCallback: (Program) -> Unit
 ) {
     EPGCardItemSurface(
         modifier = Modifier
@@ -28,7 +32,10 @@ fun ProgramCardView(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.width(160.dp)
                 .height(72.dp)
-                .clickable(onClick = { onProgramClicked(program.channel?.url.orEmpty()) }).fillMaxSize()
+                .combinedClickable(
+                    onClick = { onProgramClicked(program.channel?.url.orEmpty()) },
+                    onLongClick = {onLongPressedCallback(program) },
+                )
         ) {
             ChannelMetaDataView(
                 channelName = program.channel?.title.orEmpty(),
