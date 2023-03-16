@@ -18,15 +18,17 @@ import androidx.core.view.ViewCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
+    primary = Color.Black,
     secondary = PurpleGrey80,
-    tertiary = Pink80
+    tertiary = Pink80,
+    background =Color.Black
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
+    primary = Color.Black,
     secondary = PurpleGrey40,
-    tertiary = Pink40
+    tertiary = Pink40,
+    background = Color.Black
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -54,6 +56,12 @@ fun FastPlayerTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+    val sysUiController = rememberSystemUiController()
+    SideEffect {
+        sysUiController.setSystemBarsColor(
+            color = Color.Black.copy(alpha = 0.8f)
+        )
+    }
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -61,13 +69,6 @@ fun FastPlayerTheme(
             ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
         }
     }
-    val sysUiController = rememberSystemUiController()
-    SideEffect {
-        sysUiController.setSystemBarsColor(
-            color = Color.Black.copy(alpha = 0.8f)
-        )
-    }
-
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,

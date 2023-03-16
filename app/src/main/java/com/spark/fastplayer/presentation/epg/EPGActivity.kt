@@ -7,18 +7,26 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
+import com.spark.fastplayer.presentation.epg.ui.grid.FeedEPGData
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
 import com.spark.fastplayer.common.activatePlayerLandscapeMode
 import com.spark.fastplayer.common.activatePlayerPortraitMode
 import com.spark.fastplayer.presentation.player.PlaybackState
@@ -36,11 +44,12 @@ class EPGActivity : ComponentActivity() {
 
     private val epgViewModel: EPGViewModel by viewModels()
 
+    private var epgState = mutableStateOf<EPGState>(EPGState.Fetch)
+
     private var playbackState = mutableStateOf<PlaybackState>(PlaybackState.None)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         installSplashScreen().apply {
             setKeepOnScreenCondition {
                 splashViewModel.splashState.value == SplashState.Init
@@ -49,13 +58,23 @@ class EPGActivity : ComponentActivity() {
 
         setContent {
             FastPlayerTheme {
-                RenderPlayer()
+                showLoading(epgState.value)
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    FeedEPGData(onProgramClick = { }, epgState = epgState.value)
+                }
             }
         }
+        renderEPGData()
+    }
 
+    private fun renderEPGData() {
         lifecycleScope.launchWhenStarted {
-            epgViewModel.playbackState.collect{ action->
-                when(action) {
+            epgViewModel.playbackState.collect { action ->
+                when (action) {
                     is PlaybackState.PlaybackSuccess -> {
                         playbackState.value = PlaybackState.PlaybackSuccess(action.metData)
                     }
@@ -67,14 +86,17 @@ class EPGActivity : ComponentActivity() {
         }
 
         lifecycleScope.launchWhenStarted {
-            epgViewModel.epgState.collect{
-                when(it) {
+            epgViewModel.epgState.collect {
+                when (it) {
                     is EPGState.FetchSuccess -> {
-                        epgViewModel.initPlayback(it.list.firstOrNull()?.programs?.first()?.channel?.channelid.orEmpty())
-                     }
+                        epgState.value = EPGState.FetchSuccess(it.map, it.taxonomies)
+                    }
+                    is EPGState.FetchError -> {
+                        // display error UI
+                    }
                     else -> {
-                        // not handling error/failure currently
-                     }
+
+                    }
                 }
             }
         }
@@ -83,9 +105,32 @@ class EPGActivity : ComponentActivity() {
     override fun onConfigurationChanged(config: Configuration) {
         super.onConfigurationChanged(config)
         if (config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-           window.activatePlayerLandscapeMode()
+            window.activatePlayerLandscapeMode()
         } else {
             window.activatePlayerPortraitMode()
+        }
+    }
+
+
+    @Composable
+    fun showLoading(ePGState: EPGState) {
+
+        if (ePGState == EPGState.Fetch) {
+            Dialog(
+                onDismissRequest = { },
+                DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .background(Color.DarkGray, shape = RoundedCornerShape(8.dp))
+                ) {
+                    /*TO DO */
+                    //current theme doesn't support loading indicator
+                    //CircularProgressIndicator(LocalContext.current)
+                }
+            }
         }
     }
 
@@ -96,13 +141,14 @@ class EPGActivity : ComponentActivity() {
         Column(
             Modifier
                 .background(color = Color.Black)
-                .fillMaxSize()) {
+                .fillMaxSize()
+        ) {
             Surface(
                 modifier = Modifier
                     .wrapContentSize()
                     .background(Black)
             ) {
-               VideoPlayerWidget(playbackState = playbackState.value)
+                VideoPlayerWidget(playbackState = playbackState.value)
             }
         }
     }
