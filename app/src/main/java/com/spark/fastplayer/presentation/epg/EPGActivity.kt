@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -18,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -46,7 +44,9 @@ class EPGActivity : ComponentActivity() {
     private val epgViewModel: EPGViewModel by viewModels()
 
     private var epgState = mutableStateOf<EPGState>(EPGState.Fetch)
-    private var showBtmSht = mutableStateOf<Program?>(null)
+
+    // a dummy var for bottomSheetState management
+    private var bottomSheetState = mutableStateOf<Program?>(null)
 
     private var playbackState = mutableStateOf<PlaybackState>(PlaybackState.None)
 
@@ -64,11 +64,14 @@ class EPGActivity : ComponentActivity() {
             val modalSheetState = rememberModalBottomSheetState(
                 initialValue = ModalBottomSheetValue.Hidden
             )
+            // For bottomSheet
             ModalBottomSheetLayout(
                 sheetState = modalSheetState,
                 sheetContent = {
                     Column {
-                        SheetContent(showBtmSht.value)
+                        // The problem is here , passing mutable state to bottomSheetUI gives a crash, although calling ->  SheetContent(Program()) won't
+                        // give any crash, not sure if ModalBottomSheetLayout has this issue.
+                        SheetContent(bottomSheetState.value)
                     }
                 },
                 sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
@@ -78,19 +81,24 @@ class EPGActivity : ComponentActivity() {
                 MainScreen(coroutine = coroutineScope, bottomSheetState = modalSheetState )
             }
 
-            val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+
+
+            // This will work , just that it doesn't goes with our UI requirements, further hide/UnHide management is required
+            // change  MainScreen() signature to    fun MainScreen(coroutine: CoroutineScope, bottomSheetState: ModalBottomSheetState )
+            // uncomment line no 140 and comment line no 139
+         /*   val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
                 bottomSheetState = rememberBottomSheetState(
                     initialValue = BottomSheetValue.Collapsed
                 )
             )
-
-           /* BottomSheetScaffold(
+            BottomSheetScaffold(
+                sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
                 sheetContent = {
                     Column {
-                        SheetContent(showBtmSht.value)
+                        SheetContent(bottomSheetState.value)
                     }
                 },
-                Modifier.pointerInput(Unit) {
+                modifier = Modifier.pointerInput(Unit) {
                     detectTapGestures(onTap = {
                         coroutineScope.launch {
                             if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
@@ -110,7 +118,7 @@ class EPGActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun MainScreen(coroutine: CoroutineScope, bottomSheetState: ModalBottomSheetState ) {
+    fun MainScreen(coroutine: CoroutineScope, bottomSheetState: ModalBottomSheetState) {
         FastPlayerTheme {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -121,9 +129,9 @@ class EPGActivity : ComponentActivity() {
                     epgState = epgState.value,
                     onProgramLongClick = {
                         coroutine.launch {
-                            showBtmSht.value = it
+                            this@EPGActivity.bottomSheetState.value = it
                             bottomSheetState.show()
-                           // bottomSheetState.expand()
+                           //  bottomSheetState.expand()
                         }
                         //epgState.value = EPGState.ShowProgramPopUp(it)
                     })

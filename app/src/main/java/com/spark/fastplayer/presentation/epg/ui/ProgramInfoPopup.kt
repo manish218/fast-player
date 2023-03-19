@@ -2,9 +2,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,7 +34,9 @@ fun BottomSheetLayout(program: Program) {
 fun SheetContent(program: Program?) {
     if (program != null) {
         Row(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight()
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
                 .background(color = Color.DarkGray),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -138,7 +138,9 @@ fun SheetContent(program: Program?) {
                 )
 
                 androidx.compose.material3.Text(
-                    modifier = Modifier.padding(top = 12.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(top = 12.dp)
+                        .fillMaxWidth(),
                     text = program.channel?.title.orEmpty(),
                     fontSize = 18.sp,
                     color = Color.White,
