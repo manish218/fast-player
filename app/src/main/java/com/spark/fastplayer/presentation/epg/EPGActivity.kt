@@ -1,45 +1,30 @@
 package com.spark.fastplayer.presentation.epg
 
-import BottomSheetLayout
 import SheetContent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
-import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.spark.fastplayer.R
 import com.spark.fastplayer.common.*
 import com.spark.fastplayer.presentation.epg.ui.grid.FeedEPGData
 import com.spark.fastplayer.presentation.player.PlaybackState
@@ -83,7 +68,7 @@ class EPGActivity : ComponentActivity() {
                 sheetState = modalSheetState,
                 sheetContent = {
                     Column {
-                        SheetContent(Program())
+                        SheetContent(showBtmSht.value)
                     }
                 },
                 sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
@@ -92,6 +77,33 @@ class EPGActivity : ComponentActivity() {
             ){
                 MainScreen(coroutine = coroutineScope, bottomSheetState = modalSheetState )
             }
+
+            val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+                bottomSheetState = rememberBottomSheetState(
+                    initialValue = BottomSheetValue.Collapsed
+                )
+            )
+
+           /* BottomSheetScaffold(
+                sheetContent = {
+                    Column {
+                        SheetContent(showBtmSht.value)
+                    }
+                },
+                Modifier.pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        coroutineScope.launch {
+                            if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
+                                bottomSheetScaffoldState.bottomSheetState.expand()
+                            } else {
+                                bottomSheetScaffoldState.bottomSheetState.collapse()
+                            }
+                        }
+                    })
+                },
+                scaffoldState = bottomSheetScaffoldState) {
+                MainScreen(coroutine = coroutineScope, bottomSheetState = bottomSheetScaffoldState.bottomSheetState )
+            }*/
         }
         renderEPGData()
     }
@@ -111,6 +123,7 @@ class EPGActivity : ComponentActivity() {
                         coroutine.launch {
                             showBtmSht.value = it
                             bottomSheetState.show()
+                           // bottomSheetState.expand()
                         }
                         //epgState.value = EPGState.ShowProgramPopUp(it)
                     })
@@ -182,9 +195,9 @@ class EPGActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ShowProgramBottomSheet(ePGState: EPGState) {
-        if (ePGState is EPGState.ShowProgramPopUp) {
-            BottomSheetLayout(ePGState.program)
+    fun ShowProgramBottomSheet(program: MutableState<Program?>) {
+        if (program != null) {
+         //   SheetContent(null,program)
         }
     }
 

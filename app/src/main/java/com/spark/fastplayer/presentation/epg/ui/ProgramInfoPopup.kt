@@ -3,6 +3,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,33 +16,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.ColorUtils
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.spark.fastplayer.R
 import com.spark.fastplayer.common.toBroadCastTime
 import com.spark.fastplayer.presentation.epg.EPGState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.openapitools.client.models.Program
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomSheetLayout(program: Program) {
-    val coroutineScope = rememberCoroutineScope()
-    val modalSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Expanded
-    )
-    ModalBottomSheetLayout(
-        sheetState = modalSheetState,
-        sheetContent = {
-            Column {
-                //SheetContent(program)
-            }
-        },
-        sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        scrimColor = Color.Transparent,
-        sheetBackgroundColor =  Color.Transparent
-    ){
 
-    }
 }
 
 @Composable
@@ -130,7 +118,7 @@ fun SheetContent(program: Program?) {
                 }
             }
 
-            Box(
+            Column(
                 modifier = Modifier
                     .width(120.dp)
                     .height(200.dp)
@@ -138,21 +126,23 @@ fun SheetContent(program: Program?) {
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(program.channel?.url.orEmpty())
+                        .data(program.channel?.images?.firstOrNull()?.url.orEmpty())
                         .crossfade(true)
                         .build(),
                     contentDescription = "",
                     placeholder = painterResource(R.drawable.ic_baseline_connected_tv_24),
-                    modifier = Modifier.width(108.dp).height(64.dp),
+                    modifier = Modifier
+                        .width(108.dp)
+                        .height(64.dp),
                     contentScale = ContentScale.Inside,
                 )
 
                 androidx.compose.material3.Text(
-                    modifier = Modifier.padding(top = 12.dp),
+                    modifier = Modifier.padding(top = 12.dp).fillMaxWidth(),
                     text = program.channel?.title.orEmpty(),
                     fontSize = 18.sp,
                     color = Color.White,
-                    textAlign = TextAlign.Start,
+                    textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
