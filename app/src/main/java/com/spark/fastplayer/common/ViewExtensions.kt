@@ -1,32 +1,16 @@
 package com.spark.fastplayer.common
 
-import BottomSheetLayout
-import android.app.Activity
 import android.os.Build
-import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.unit.dp
 import com.spark.fastplayer.presentation.epg.StreamType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import org.openapitools.client.models.Program
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -96,87 +80,6 @@ fun OffsetDateTime?.getStreamType(scheduleEndTime: OffsetDateTime?): StreamType 
          } else {
              TODO("VERSION.SDK_INT < O")
          }
-    }
-}
-
-fun Activity.showAsBottomSheet(content: @Composable (() -> Unit) -> Unit
-) {
-    val viewGroup = this.findViewById(android.R.id.content) as ViewGroup
-    addContentToView( viewGroup, content)
-}
-
-fun addContentToView(
-    viewGroup: ViewGroup,
-    content: @Composable (() -> Unit) -> Unit
-) {
-    viewGroup.addView(
-        ComposeView(viewGroup.context).apply {
-            setContent {
-                BottomSheetWrapper( viewGroup, this, content)
-            }
-        }
-    )
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-private fun BottomSheetWrapper(
-    parent: ViewGroup,
-    composeView: ComposeView,
-    content: @Composable (() -> Unit) -> Unit
-) {
-    val TAG = parent::class.java.simpleName
-    val coroutineScope = rememberCoroutineScope()
-    val modalBottomSheetState =
-        rememberModalBottomSheetState(
-            ModalBottomSheetValue.Hidden,
-            confirmStateChange = {
-                it != ModalBottomSheetValue.HalfExpanded
-            }
-        )
-    var isSheetOpened by remember { mutableStateOf(false) }
-
-    ModalBottomSheetLayout(
-        sheetBackgroundColor = Color.Transparent,
-        sheetState = modalBottomSheetState,
-        sheetContent = {
-            content {
-                animateHideBottomSheet(coroutineScope, modalBottomSheetState)
-            }
-        }
-    ) {}
-
-
-    BackHandler {
-        animateHideBottomSheet(coroutineScope, modalBottomSheetState)
-    }
-
-    // Take action based on hidden state
-    LaunchedEffect(modalBottomSheetState.currentValue) {
-        when (modalBottomSheetState.currentValue) {
-            ModalBottomSheetValue.Hidden -> {
-                when {
-                    isSheetOpened -> parent.removeView(composeView)
-                    else -> {
-                        isSheetOpened = true
-                        modalBottomSheetState.show()
-                    }
-                }
-            }
-            else -> {
-                Log.i(TAG, "Bottom sheet ${modalBottomSheetState.currentValue} state")
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-private fun animateHideBottomSheet(
-    coroutineScope: CoroutineScope,
-    modalBottomSheetState: ModalBottomSheetState
-) {
-    coroutineScope.launch {
-        modalBottomSheetState.hide() // will trigger the LaunchedEffect
     }
 }
 
