@@ -2,26 +2,9 @@ package com.spark.fastplayer.presentation.epg
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
-import com.spark.fastplayer.presentation.epg.ui.grid.FeedEPGData
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
@@ -56,7 +39,14 @@ class EPGActivity : ComponentActivity() {
         }
 
         setContent {
-            HomeScreen(bottomSheetDataState = bottomSheetDataState, epgState = epgState)
+            HomeScreen(
+                bottomSheetDataState = bottomSheetDataState,
+                epgState = epgState,
+                playbackState = playbackState,
+                onProgramClick = { channelId ->
+                    epgViewModel.initPlayback(channelId)
+                }
+            )
         }
         renderEPGData()
     }

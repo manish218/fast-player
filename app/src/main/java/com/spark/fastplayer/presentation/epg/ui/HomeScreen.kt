@@ -1,6 +1,7 @@
 package com.spark.fastplayer.presentation.epg.ui
 
 import BottomSheetLayout
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +14,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -28,24 +30,37 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     bottomSheetDataState: MutableState<BottomSheetDataState>,
-    epgState: MutableState<EPGState>
+    epgState: MutableState<EPGState>,
+    playbackState: MutableState<PlaybackState>,
+    onProgramClick: (String) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden
     )
-    ModalBottomSheetLayout(
-        sheetState = modalSheetState,
-        sheetContent = { BottomSheetLayout(bottomSheetDataState.value) },
-        sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        scrimColor = Color.Black.copy(alpha = 0.4f),
-    ) {
-        EPGGridView(
-            coroutine = coroutineScope,
-            bottomSheetState = modalSheetState,
-            epgState = epgState,
-            bottomSheetDataState = bottomSheetDataState
-        )
+    FastPlayerTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            ModalBottomSheetLayout(
+                sheetState = modalSheetState,
+                sheetContent = { BottomSheetLayout(bottomSheetDataState.value) },
+                sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                scrimColor = Color.Black.copy(alpha = 0.4f),
+            ) {
+                Column {
+                    RenderPlayer(playbackState = playbackState)
+                    EPGGridView(
+                        coroutine = coroutineScope,
+                        bottomSheetState = modalSheetState,
+                        epgState = epgState,
+                        bottomSheetDataState = bottomSheetDataState,
+                        onProgramClick = onProgramClick
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -55,26 +70,20 @@ fun EPGGridView(
     coroutine: CoroutineScope,
     bottomSheetState: ModalBottomSheetState,
     epgState: MutableState<EPGState>,
-    bottomSheetDataState: MutableState<BottomSheetDataState>
+    bottomSheetDataState: MutableState<BottomSheetDataState>,
+    onProgramClick: (String) -> Unit
 ) {
-    FastPlayerTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            FeedEPGData(
-                onProgramClick = { },
-                epgState = epgState.value,
-                onProgramLongClick = {
-                    coroutine.launch {
-                        bottomSheetDataState.value = BottomSheetDataState.Load(it)
-                        bottomSheetState.show()
-                    }
-                })
+    FeedEPGData(
+        onProgramClick = onProgramClick,
+        epgState = epgState.value,
+        onProgramLongClick = {
+            coroutine.launch {
+                bottomSheetDataState.value = BottomSheetDataState.Load(it)
+                bottomSheetState.show()
+            }
         }
-    }
+    )
 }
-
 
 
 @Composable
@@ -100,15 +109,21 @@ fun showLoading(ePGState: EPGState) {
 
 @Composable
 fun RenderPlayer(playbackState: MutableState<PlaybackState>) {
-    Column(
-        Modifier
+    val configuration = LocalConfiguration.current
+    val modifier = when (configuration.orientation) {
+        Configuration.ORIENTATION_LANDSCAPE -> Modifier
             .background(color = Color.Black)
-            .fillMaxSize()
-    ) {
+            .wrapContentSize()
+        else -> Modifier
+            .background(color = Color.Black)
+            .fillMaxHeight(0.3f)
+            .fillMaxWidth()
+    }
+    if (playbackState.value is PlaybackState.PlaybackSuccess) {
         Surface(
-            modifier = Modifier
-                .wrapContentSize()
+            modifier = modifier
                 .background(Color.Black)
+                .fillMaxSize()
         ) {
             VideoPlayerWidget(playbackState = playbackState.value)
         }
