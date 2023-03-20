@@ -182,13 +182,13 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlayBackMetaDa
 @Composable
 private fun TopControl(modifier: Modifier = Modifier, playBackMetaData: PlayBackMetaData?) {
 
-    Row(modifier = Modifier.padding(top = 16.dp)) {
+    Row(modifier = Modifier.padding(top = 16.dp, start = 16.dp)) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(playBackMetaData?.channelLogoUrl)
                 .crossfade(true)
                 .build(),
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Inside,
             placeholder = painterResource(R.drawable.channel_icon),
             modifier = Modifier
                 .height(40.dp)
