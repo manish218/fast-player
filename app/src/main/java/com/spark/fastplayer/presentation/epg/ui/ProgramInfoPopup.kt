@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.spark.fastplayer.common.getFormattedScheduledTime
 import com.spark.fastplayer.common.getStreamType
-import com.spark.fastplayer.common.toBroadCastTime
 import com.spark.fastplayer.presentation.epg.StreamType
 import com.spark.fastplayer.presentation.epg.ui.BottomSheetDataState
 import org.openapitools.client.models.Program
@@ -99,7 +99,7 @@ fun SheetContent(program: Program) {
         )
 
         Text(
-            text = program.scheduleStart?.toBroadCastTime() + " - " + program.scheduleEnd?.toBroadCastTime(),
+            text = program.getFormattedScheduledTime(),
             fontSize = 18.sp,
             color = Color.White,
             textAlign = TextAlign.Start,

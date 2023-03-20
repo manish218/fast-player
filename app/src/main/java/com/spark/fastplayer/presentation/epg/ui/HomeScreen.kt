@@ -40,10 +40,10 @@ fun HomeScreen(
         sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
         scrimColor = Color.Black.copy(alpha = 0.4f),
     ) {
-        MainScreen(
+        EPGGridView(
             coroutine = coroutineScope,
             bottomSheetState = modalSheetState,
-            epgState,
+            epgState = epgState,
             bottomSheetDataState = bottomSheetDataState
         )
     }
@@ -51,7 +51,7 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainScreen(
+fun EPGGridView(
     coroutine: CoroutineScope,
     bottomSheetState: ModalBottomSheetState,
     epgState: MutableState<EPGState>,
@@ -79,7 +79,6 @@ fun MainScreen(
 
 @Composable
 fun showLoading(ePGState: EPGState) {
-
     if (ePGState == EPGState.Fetch) {
         Dialog(
             onDismissRequest = { },

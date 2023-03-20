@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import com.spark.fastplayer.presentation.epg.StreamType
+import org.openapitools.client.models.Program
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -82,4 +83,6 @@ fun OffsetDateTime?.getStreamType(scheduleEndTime: OffsetDateTime?): StreamType 
          }
     }
 }
+
+fun Program.getFormattedScheduledTime() = scheduleStart?.toBroadCastTime() + " - " + scheduleEnd?.toBroadCastTime()
 
