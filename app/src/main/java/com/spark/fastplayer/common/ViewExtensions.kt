@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import com.spark.fastplayer.presentation.epg.StreamType
+import org.openapitools.client.models.Program
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -51,7 +52,7 @@ fun Window.activatePlayerPortraitMode() {
     }
 }
 
-fun Color.Companion.random() : Color {
+fun Color.Companion.random(): Color {
     val red = Random.nextInt(128)
     val green = Random.nextInt(128)
     val blue = Random.nextInt(128)
@@ -82,3 +83,6 @@ fun OffsetDateTime?.getStreamType(scheduleEndTime: OffsetDateTime?): StreamType 
          }
     }
 }
+
+fun Program.getFormattedScheduledTime() = scheduleStart?.toBroadCastTime() + " - " + scheduleEnd?.toBroadCastTime()
+
