@@ -2,6 +2,7 @@ package com.spark.fastplayer.presentation.epg
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -22,17 +23,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.spark.fastplayer.common.activatePlayerLandscapeMode
 import com.spark.fastplayer.common.activatePlayerPortraitMode
+import com.spark.fastplayer.presentation.epg.ui.BottomSheetDataState
+import com.spark.fastplayer.presentation.epg.ui.HomeScreen
 import com.spark.fastplayer.presentation.player.PlaybackState
-import com.spark.fastplayer.presentation.player.VideoPlayerWidget
 import com.spark.fastplayer.presentation.splash.SplashState
 import com.spark.fastplayer.presentation.splash.SplashViewModel
-import com.spark.fastplayer.ui.theme.FastPlayerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -45,8 +44,9 @@ class EPGActivity : ComponentActivity() {
 
     private var epgState = mutableStateOf<EPGState>(EPGState.Fetch)
 
-    private var playbackState = mutableStateOf<PlaybackState>(PlaybackState.None)
+    private var bottomSheetDataState = mutableStateOf<BottomSheetDataState>(BottomSheetDataState.Init())
 
+    private var playbackState = mutableStateOf<PlaybackState>(PlaybackState.None)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen().apply {
@@ -56,19 +56,15 @@ class EPGActivity : ComponentActivity() {
         }
 
         setContent {
-            FastPlayerTheme {
-                showLoading(epgState.value)
-                // A surface container using the 'background' color from the theme
-                RenderPlayer()
-            }
+            HomeScreen(bottomSheetDataState = bottomSheetDataState, epgState = epgState)
         }
         renderEPGData()
     }
 
     private fun renderEPGData() {
         lifecycleScope.launchWhenStarted {
-            epgViewModel.playbackState.collect { action ->
-                when (action) {
+            epgViewModel.playbackState.collect{ action->
+                when(action) {
                     is PlaybackState.PlaybackSuccess -> {
                         playbackState.value = PlaybackState.PlaybackSuccess(action.metData)
                     }
@@ -89,8 +85,8 @@ class EPGActivity : ComponentActivity() {
                         // display error UI
                     }
                     else -> {
-
-                    }
+                        // not handling error/failure currently
+                     }
                 }
             }
         }
@@ -102,53 +98,6 @@ class EPGActivity : ComponentActivity() {
             window.activatePlayerLandscapeMode()
         } else {
             window.activatePlayerPortraitMode()
-        }
-    }
-
-
-    @Composable
-    fun showLoading(ePGState: EPGState) {
-
-        if (ePGState == EPGState.Fetch) {
-            Dialog(
-                onDismissRequest = { },
-                DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .background(Color.DarkGray, shape = RoundedCornerShape(8.dp))
-                ) {
-                    /*TO DO */
-                    //current theme doesn't support loading indicator
-                    //CircularProgressIndicator(LocalContext.current)
-                }
-            }
-        }
-    }
-
-
-    @Preview(showBackground = true)
-    @Composable
-    fun RenderPlayer() {
-        Column{
-            Surface(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .background(Black)
-            ) {
-                VideoPlayerWidget(playbackState = playbackState.value)
-            }
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                FeedEPGData(
-                    onProgramClick = { epgViewModel.initPlayback(it) },
-                    epgState = epgState.value
-                )
-            }
         }
     }
 }

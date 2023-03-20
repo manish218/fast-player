@@ -5,6 +5,9 @@ plugins {
     id 'com.google.dagger.hilt.android'
 }
 
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+
 android {
     def targetVersion = 33
     namespace 'com.spark.fastplayer'
@@ -25,14 +28,14 @@ android {
 
     buildTypes {
         release {
-            buildConfigField "String", "API_URL", "\"https://0itfjctli1.execute-api.eu-west-2.amazonaws.com/prod-1\""
-            buildConfigField "String", "X_API_KEY", "\"KJ2TSNFNM77loRy5yrwBH9NqVKrhukqF96UCtvVV\""
-            minifyEnabled true
+            buildConfigField "String", "API_URL", localProperties['api.baseurl']
+            buildConfigField "String", "X_API_KEY", localProperties['api.key']
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            buildConfigField "String", "API_URL", "\"https://0itfjctli1.execute-api.eu-west-2.amazonaws.com/prod-1\""
-            buildConfigField "String", "X_API_KEY", "\"KJ2TSNFNM77loRy5yrwBH9NqVKrhukqF96UCtvVV\""
+            buildConfigField "String", "API_URL", localProperties['api.baseurl']
+            buildConfigField "String", "X_API_KEY", localProperties['api.key']
         }
     }
     compileOptions {
@@ -101,6 +104,5 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.28.0"
     implementation("io.coil-kt:coil-compose:2.2.2")
-
-
+    implementation "androidx.compose.material:material:$compose_version"
 }
