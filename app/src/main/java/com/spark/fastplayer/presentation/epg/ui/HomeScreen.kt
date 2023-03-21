@@ -18,6 +18,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.view.WindowInsetsControllerCompat
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.spark.fastplayer.presentation.epg.EPGState
 import com.spark.fastplayer.presentation.epg.ui.grid.FeedEPGData
 import com.spark.fastplayer.presentation.player.PlaybackState
@@ -110,14 +113,18 @@ fun showLoading(ePGState: EPGState) {
 @Composable
 fun RenderPlayer(playbackState: MutableState<PlaybackState>) {
     val configuration = LocalConfiguration.current
+    val systemUiController: SystemUiController = rememberSystemUiController()
+
     val modifier = when (configuration.orientation) {
-        Configuration.ORIENTATION_LANDSCAPE -> Modifier
-            .background(color = Color.Black)
-            .wrapContentSize()
-        else -> Modifier
-            .background(color = Color.Black)
-            .fillMaxHeight(0.3f)
-            .fillMaxWidth()
+        Configuration.ORIENTATION_LANDSCAPE ->  {
+            systemUiController.isSystemBarsVisible = false
+            systemUiController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            Modifier.background(color = Color.Black).wrapContentSize()
+        }
+        else -> {
+            systemUiController.isSystemBarsVisible = true
+            Modifier.background(color = Color.Black).fillMaxHeight(0.28f).fillMaxWidth()
+        }
     }
     if (playbackState.value is PlaybackState.PlaybackSuccess) {
         Surface(
