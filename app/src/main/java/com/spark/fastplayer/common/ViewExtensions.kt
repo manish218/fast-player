@@ -46,8 +46,6 @@ fun Window.activatePlayerPortraitMode() {
             android.view.WindowInsets.Type.statusBars()
         )
     } else {
-        val uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-        decorView.systemUiVisibility = uiOptions
         clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
 }
