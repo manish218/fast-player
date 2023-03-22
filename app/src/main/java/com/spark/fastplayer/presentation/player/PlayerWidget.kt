@@ -120,6 +120,7 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlayBackMetaDa
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                     )
+                    setShowBuffering(StyledPlayerView.SHOW_BUFFERING_ALWAYS)
                 }
             }
         )
