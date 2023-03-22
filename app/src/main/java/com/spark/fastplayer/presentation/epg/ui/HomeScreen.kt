@@ -46,6 +46,7 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
+            showLoading(epgState.value)
             ModalBottomSheetLayout(
                 sheetState = modalSheetState,
                 sheetContent = { BottomSheetLayout(bottomSheetDataState.value) },
@@ -102,9 +103,11 @@ fun showLoading(ePGState: EPGState) {
                     .size(100.dp)
                     .background(Color.DarkGray, shape = RoundedCornerShape(8.dp))
             ) {
-                /*TO DO */
-                //current theme doesn't support loading indicator
-                //CircularProgressIndicator(LocalContext.current)
+                CircularProgressIndicator(
+                    color = Color.Red,
+                    strokeWidth = 4.dp,
+                    modifier = Modifier.size(48.dp)
+                )
             }
         }
     }
@@ -119,11 +122,16 @@ fun RenderPlayer(playbackState: MutableState<PlaybackState>) {
         Configuration.ORIENTATION_LANDSCAPE ->  {
             systemUiController.isSystemBarsVisible = false
             systemUiController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            Modifier.background(color = Color.Black).wrapContentSize()
+            Modifier
+                .background(color = Color.Black)
+                .wrapContentSize()
         }
         else -> {
             systemUiController.isSystemBarsVisible = true
-            Modifier.background(color = Color.Black).fillMaxHeight(0.28f).fillMaxWidth()
+            Modifier
+                .background(color = Color.Black)
+                .fillMaxHeight(0.28f)
+                .fillMaxWidth()
         }
     }
     if (playbackState.value is PlaybackState.PlaybackSuccess) {
