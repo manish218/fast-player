@@ -35,7 +35,7 @@ fun HomeScreen(
     bottomSheetDataState: MutableState<BottomSheetDataState>,
     epgState: MutableState<EPGState>,
     playbackState: MutableState<PlaybackState>,
-    onProgramClick: (String) -> Unit
+    onProgramClick: (String, String) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
@@ -74,7 +74,7 @@ fun EPGGridView(
     bottomSheetState: ModalBottomSheetState,
     epgState: MutableState<EPGState>,
     bottomSheetDataState: MutableState<BottomSheetDataState>,
-    onProgramClick: (String) -> Unit
+    onProgramClick: (String, String) -> Unit
 ) {
     FeedEPGData(
         onProgramClick = onProgramClick,

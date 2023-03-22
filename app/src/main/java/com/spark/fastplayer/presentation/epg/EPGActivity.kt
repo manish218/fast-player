@@ -39,8 +39,8 @@ class EPGActivity : ComponentActivity() {
                 bottomSheetDataState = bottomSheetDataState,
                 epgState = epgState,
                 playbackState = playbackState,
-                onProgramClick = { channelId ->
-                    epgViewModel.initPlayback(channelId)
+                onProgramClick = { channelId, taxonomyId ->
+                    epgViewModel.initPlayback(channelId, taxonomyId)
                 }
             )
         }

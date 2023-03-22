@@ -26,7 +26,7 @@ import org.openapitools.client.models.Taxonomy
 
 @Composable
 fun FeedEPGData(
-    onProgramClick: (String) -> Unit,
+    onProgramClick: (String, String) -> Unit,
     onProgramLongClick: (Program) -> Unit,
     modifier: Modifier = Modifier,
     epgState: EPGState
@@ -52,7 +52,7 @@ fun FeedEPGData(
 private fun RenderEPGGrid(
     epgRowCollection: List<Pair<Taxonomy?, List<EpgRow>>>,
     filters: List<Taxonomy?>,
-    onProgramClick: (String) -> Unit,
+    onProgramClick: (String, String) -> Unit,
     onProgramLongClick: (Program) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -65,7 +65,7 @@ private fun RenderEPGGrid(
 private fun RenderEPGRowsCollections(
     epgRow: List<Pair<Taxonomy?, List<EpgRow>>>,
     taxonomies: List<Taxonomy?>,
-    onProgramClick: (String) -> Unit,
+    onProgramClick: (String, String) -> Unit,
     onProgramLongClick: (Program) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -115,7 +115,7 @@ private fun RenderEPGRowsCollections(
 @Composable
 fun EpgProgramsCollection(
     programList: List<Program>,
-    onProgramClicked: (String) -> Unit,
+    onProgramClicked: (String, String) -> Unit,
     onProgramLongClick: (Program) -> Unit,
     modifier: Modifier = Modifier,
 ) {

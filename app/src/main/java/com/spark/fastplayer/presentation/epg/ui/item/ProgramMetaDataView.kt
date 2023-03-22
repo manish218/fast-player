@@ -22,7 +22,7 @@ import com.spark.fastplayer.presentation.epg.ui.EPGCardItemSurface
 @Composable
 fun ProgramCardView(
     program: Program,
-    onProgramClicked: (String) -> Unit,
+    onProgramClicked: (String, String) -> Unit,
     onLongPressedCallback: (Program) -> Unit
 ) {
     EPGCardItemSurface(
@@ -39,7 +39,7 @@ fun ProgramCardView(
                 .height(72.dp)
                 .combinedClickable(
                     onClick = { if (program.scheduleStart.getStreamType(program.scheduleEnd) == StreamType.Live) {
-                        onProgramClicked(program.channel?.channelid.orEmpty())
+                        onProgramClicked(program.channel?.channelid.orEmpty(), program.taxonomies?.first()?.taxonomyId.orEmpty())
                     } },
                     onLongClick = {onLongPressedCallback(program) },
                 )
