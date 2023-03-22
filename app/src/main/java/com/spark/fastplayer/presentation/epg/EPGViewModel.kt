@@ -12,8 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.openapitools.client.apis.EpgApi
-import org.openapitools.client.models.Channel
 import org.openapitools.client.models.EpgRow
 import org.openapitools.client.models.Program
 import org.openapitools.client.models.Taxonomy
@@ -40,10 +38,11 @@ class EPGViewModel @Inject constructor(
         viewModelScope.launch(coroutineContextProvider.io) {
             val epgData = epgRepository.getEPGData()
             if (epgData.isNotEmpty()) resumePlaybackFromHistory(epgData)
+            filterTaxonomies(epgData)
         }
     }
 
-    fun initPlayback(channelId: String, taxonomyId: String = "") {
+    fun initPlayback(channelId: String, taxonomyId: String) {
         viewModelScope.launch(coroutineContextProvider.io) {
             val playbackData = epgRepository.getChannelStreamInfo(channelId)
             _playbackState.value = PlaybackState.PlaybackSuccess(
@@ -72,30 +71,46 @@ class EPGViewModel @Inject constructor(
 
     private fun resumePlaybackFromHistory(epgList: List<EpgRow>) {
         viewModelScope.launch(coroutineContextProvider.io) {
-            resumeLastWatchedChannel(
-                dataStoreManager.getTaxonomyId.first(),
-                dataStoreManager.getChannelId.first(),
-                epgList
-            )?.let {
-                it.channel?.channelid?.let { channelId ->
-                    initPlayback(channelId)
-                    filterTaxonomies(epgList)
+            if (dataStoreManager.getTaxonomyId.first().isEmpty() || dataStoreManager.getChannelId.first().isEmpty()) {
+                playFirstEPGProgram(epgList)
+            } else {
+                getLastWatchedProgram(
+                    dataStoreManager.getTaxonomyId.first(),
+                    dataStoreManager.getChannelId.first(),
+                    epgList
+                )?.let { program ->
+                    program.channel?.channelid?.let { channelId ->
+                        initPlayback(
+                            channelId = channelId,
+                            taxonomyId = program.taxonomies?.firstOrNull()?.taxonomyId.orEmpty()
+                        )
+                    }
                 }
             }
         }
     }
-
-    private fun resumeLastWatchedChannel(taxId : String, channelId: String, epgList: List<EpgRow>): Program? {
-        if (channelId.isEmpty() || taxId.isEmpty()) return epgList.firstOrNull()?.programs?.firstOrNull()
-       return epgList.flatMap {
-            it.programs.asNotNullList()
-        }.firstOrNull {
-             it.channel?.channelid == channelId
-        } ?: getFirstProgramFromLastWatchedTaxonomy(taxId, epgList) ?: epgList.firstOrNull()?.programs?.firstOrNull()
+    private fun playFirstEPGProgram(epgList: List<EpgRow>) {
+        epgList.firstOrNull()?.programs?.firstOrNull()?.let { program ->
+            program.channel?.channelid?.let {
+                initPlayback(
+                    channelId = it,
+                    taxonomyId = program.taxonomies?.first()?.taxonomyId.orEmpty()
+                )
+            }
+        }
+    }
+    private fun getLastWatchedProgram(taxonomyId : String, channelId: String, epgList: List<EpgRow>): Program? {
+       return getLastWatchedChannel(channelId, epgList)
+           ?: getFirstProgramFromLastWatchedTaxonomy(taxonomyId, epgList)
+           ?: epgList.firstOrNull()?.programs?.firstOrNull()
     }
 
+    private fun getLastWatchedChannel(channelId: String, epgList: List<EpgRow>): Program? {
+        return epgList.flatMap { it.programs.asNotNullList() }.takeIf { it.isNotEmpty() }
+            ?.firstOrNull { it.channel?.channelid == channelId }
+    }
     private fun getFirstProgramFromLastWatchedTaxonomy(taxId: String, epgList: List<EpgRow>): Program? {
-        return epgList.flatMap { it.programs.asNotNullList() }.firstOrNull {
+        return epgList.flatMap { it.programs.asNotNullList() }.takeIf { it.isNotEmpty() }?.firstOrNull {
             it.taxonomies?.firstOrNull { taxonomy->
                 taxonomy.taxonomyId == taxId
             }
@@ -103,7 +118,6 @@ class EPGViewModel @Inject constructor(
         }
     }
 
-    private fun List<Program>?.asNotNullList(): List<Program> {
-        return this ?: emptyList()
-    }
+    private fun List<Program>?.asNotNullList(): List<Program> =  this ?: emptyList()
+
 }
