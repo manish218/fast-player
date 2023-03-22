@@ -10,11 +10,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class DataStoreManager(private val context: Context) {
-
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("content_play_history")
-        private val CHANNEL_ID_KEY = stringPreferencesKey("c_id")
-        private val TAXONOMY_ID_KEY = stringPreferencesKey("t_id")
+        private val CHANNEL_ID_KEY = stringPreferencesKey("channel_id")
+        private val TAXONOMY_ID_KEY = stringPreferencesKey("taxonomy_id")
     }
 
     val getChannelId: Flow<String> = context.dataStore.data.map { preferences ->
@@ -24,14 +23,14 @@ class DataStoreManager(private val context: Context) {
         preferences[TAXONOMY_ID_KEY] ?: ""
     }
 
-    suspend fun saveTaxonomyId(taxID: String) {
+    suspend fun saveTaxonomyId(taxonomyId: String) {
         context.dataStore.edit { preferences ->
-            preferences[TAXONOMY_ID_KEY] = taxID
+            preferences[TAXONOMY_ID_KEY] = taxonomyId
         }
     }
-    suspend fun saveChannelId(channelID: String) {
+    suspend fun saveChannelId(channelId: String) {
         context.dataStore.edit { preferences ->
-            preferences[CHANNEL_ID_KEY] = channelID
+            preferences[CHANNEL_ID_KEY] = channelId
         }
     }
 }
