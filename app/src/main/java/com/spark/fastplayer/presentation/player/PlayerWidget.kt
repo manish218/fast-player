@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -35,7 +36,6 @@ import com.spark.fastplayer.R
 import com.spark.fastplayer.common.noRippleClickable
 
 @SuppressLint("ResourceAsColor")
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun VideoPlayerWidget(playbackState: PlaybackState) {
 
@@ -109,7 +109,7 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlayBackMetaDa
             modifier = Modifier
                 .clickable {
                     shouldShowControls = shouldShowControls.not()
-                }
+                }.background(Color.Black)
                 .constrainAs(playerView) {},
             factory = {
                 StyledPlayerView(context).apply {
@@ -120,6 +120,7 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlayBackMetaDa
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                     )
+                    setShowBuffering(StyledPlayerView.SHOW_BUFFERING_ALWAYS)
                 }
             }
         )
@@ -183,13 +184,13 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlayBackMetaDa
 @Composable
 private fun TopControl(modifier: Modifier = Modifier, playBackMetaData: PlayBackMetaData?) {
 
-    Row(modifier = Modifier.padding(top = 16.dp)) {
+    Row(modifier = Modifier.padding(top = 16.dp, start = 16.dp)) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(playBackMetaData?.channelLogoUrl)
                 .crossfade(true)
                 .build(),
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Inside,
             placeholder = painterResource(R.drawable.channel_icon),
             modifier = Modifier
                 .height(40.dp)
@@ -212,9 +213,11 @@ private fun TopControl(modifier: Modifier = Modifier, playBackMetaData: PlayBack
 
             Text(
                 modifier = modifier.padding(start = 16.dp),
-                text = "12:30 - 1:30",
+                text = playBackMetaData?.description.orEmpty(),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.White,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

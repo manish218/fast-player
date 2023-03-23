@@ -1,6 +1,5 @@
 package com.spark.fastplayer.presentation.epg
 
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,15 +7,12 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.spark.fastplayer.common.activatePlayerLandscapeMode
-import com.spark.fastplayer.common.activatePlayerPortraitMode
 import com.spark.fastplayer.presentation.epg.ui.BottomSheetDataState
 import com.spark.fastplayer.presentation.epg.ui.HomeScreen
 import com.spark.fastplayer.presentation.player.PlaybackState
 import com.spark.fastplayer.presentation.splash.SplashState
 import com.spark.fastplayer.presentation.splash.SplashViewModel
 import dagger.hilt.android.AndroidEntryPoint
-
 
 @AndroidEntryPoint
 class EPGActivity : ComponentActivity() {
@@ -39,15 +35,22 @@ class EPGActivity : ComponentActivity() {
         }
 
         setContent {
-            HomeScreen(bottomSheetDataState = bottomSheetDataState, epgState = epgState)
+            HomeScreen(
+                bottomSheetDataState = bottomSheetDataState,
+                epgState = epgState,
+                playbackState = playbackState,
+                onProgramClick = { channelId ->
+                    epgViewModel.initPlayback(channelId)
+                }
+            )
         }
         renderEPGData()
     }
 
     private fun renderEPGData() {
         lifecycleScope.launchWhenStarted {
-            epgViewModel.playbackState.collect { action ->
-                when (action) {
+            epgViewModel.playbackState.collect{ action->
+                when(action) {
                     is PlaybackState.PlaybackSuccess -> {
                         playbackState.value = PlaybackState.PlaybackSuccess(action.metData)
                     }
@@ -68,19 +71,10 @@ class EPGActivity : ComponentActivity() {
                         // display error UI
                     }
                     else -> {
-
-                    }
+                        // not handling error/failure currently
+                     }
                 }
             }
-        }
-    }
-
-    override fun onConfigurationChanged(config: Configuration) {
-        super.onConfigurationChanged(config)
-        if (config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            window.activatePlayerLandscapeMode()
-        } else {
-            window.activatePlayerPortraitMode()
         }
     }
 }
