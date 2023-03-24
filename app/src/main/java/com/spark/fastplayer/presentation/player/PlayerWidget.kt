@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -120,6 +121,7 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlayBackMetaDa
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                     )
+                    setShowBuffering(StyledPlayerView.SHOW_BUFFERING_ALWAYS)
                 }
             }
         )
@@ -212,9 +214,11 @@ private fun TopControl(modifier: Modifier = Modifier, playBackMetaData: PlayBack
 
             Text(
                 modifier = modifier.padding(start = 16.dp),
-                text = "12:30 - 1:30",
+                text = playBackMetaData?.description.orEmpty(),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.White,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

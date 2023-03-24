@@ -49,7 +49,8 @@ class EPGViewModel @Inject constructor(
                 PlayBackMetaData(
                     streamUrl = playbackData.streamInfo?.streamUrl.orEmpty(),
                     channelLogoUrl = playbackData.channel?.images?.firstOrNull()?.url.orEmpty(),
-                    title = playbackData.channel?.title.orEmpty()
+                    title = playbackData.channel?.title.orEmpty(),
+                    description = playbackData.channel?.description.orEmpty()
                 )
             )
             dataStoreManager.saveChannelId(channelId)

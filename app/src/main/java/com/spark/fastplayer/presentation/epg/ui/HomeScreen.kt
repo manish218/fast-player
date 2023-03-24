@@ -122,16 +122,11 @@ fun RenderPlayer(playbackState: MutableState<PlaybackState>) {
         Configuration.ORIENTATION_LANDSCAPE ->  {
             systemUiController.isSystemBarsVisible = false
             systemUiController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            Modifier
-                .background(color = Color.Black)
-                .wrapContentSize()
+            Modifier.background(color = Color.Black).wrapContentSize()
         }
         else -> {
             systemUiController.isSystemBarsVisible = true
-            Modifier
-                .background(color = Color.Black)
-                .fillMaxHeight(0.28f)
-                .fillMaxWidth()
+            Modifier.background(color = Color.Black).fillMaxHeight(0.28f).fillMaxWidth()
         }
     }
     if (playbackState.value is PlaybackState.PlaybackSuccess) {
