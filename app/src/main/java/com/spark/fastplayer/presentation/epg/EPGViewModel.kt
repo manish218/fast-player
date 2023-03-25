@@ -27,7 +27,7 @@ class EPGViewModel @Inject constructor(
     private val _epgState = MutableStateFlow<EPGState>(EPGState.Fetch)
     val epgState = _epgState.asStateFlow()
 
-    private val _playbackState = MutableStateFlow<PlaybackState>(PlaybackState.Init)
+    private val _playbackState = MutableStateFlow<PlaybackState>(PlaybackState.None)
     val playbackState = _playbackState.asStateFlow()
 
     init {
@@ -72,6 +72,7 @@ class EPGViewModel @Inject constructor(
 
     private fun resumePlaybackFromHistory(epgList: List<EpgRow>) {
         viewModelScope.launch(coroutineContextProvider.io) {
+            _playbackState.value = PlaybackState.Init
             if (dataStoreManager.getTaxonomyId.first().isEmpty() || dataStoreManager.getChannelId.first().isEmpty()) {
                 playFirstEPGProgram(epgList)
             } else {

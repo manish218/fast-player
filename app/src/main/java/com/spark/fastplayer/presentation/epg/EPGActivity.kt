@@ -54,6 +54,9 @@ class EPGActivity : ComponentActivity() {
                     is PlaybackState.PlaybackSuccess -> {
                         playbackState.value = PlaybackState.PlaybackSuccess(action.metData)
                     }
+                    is PlaybackState.Init -> {
+                        playbackState.value = PlaybackState.Init
+                    }
                     else -> {
                         // not handling error/failure currently
                     }

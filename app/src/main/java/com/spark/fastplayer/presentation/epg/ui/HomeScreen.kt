@@ -129,13 +129,10 @@ fun RenderPlayer(playbackState: MutableState<PlaybackState>) {
             Modifier.background(color = Color.Black).fillMaxHeight(0.28f).fillMaxWidth()
         }
     }
-    if (playbackState.value is PlaybackState.PlaybackSuccess) {
-        Surface(
-            modifier = modifier
-                .background(Color.Black)
-                .fillMaxSize()
-        ) {
-            VideoPlayerWidget(playbackState = playbackState.value)
-        }
+
+    Surface(
+        modifier = modifier.background(Color.Black).fillMaxSize()
+    ) {
+        VideoPlayerWidget(playbackState = playbackState.value)
     }
 }
