@@ -1,3 +1,5 @@
+package com.spark.fastplayer.presentation.epg.ui
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -19,7 +21,6 @@ import coil.request.ImageRequest
 import com.spark.fastplayer.common.getFormattedScheduledTime
 import com.spark.fastplayer.common.getStreamType
 import com.spark.fastplayer.presentation.epg.StreamType
-import com.spark.fastplayer.presentation.epg.ui.BottomSheetDataState
 import org.openapitools.client.models.Program
 
 @Composable

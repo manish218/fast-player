@@ -22,7 +22,7 @@ Get user or editorial playlists, with default as the first item
 //import org.openapitools.client.models.*
 
 val apiInstance = PlaybackinfoApi()
-val channelId : kotlin.String = channelId_example // kotlin.String | 
+val channelId : String = channelId_example // kotlin.String | 
 try {
     val result : ChannelPlaybackInfo = apiInstance.getPlaybackinfo(channelId)
     println(result)

@@ -75,7 +75,7 @@ class EpgApi(
     fun getEpgWithHttpInfo() : ApiResponse<kotlin.collections.List<EpgRow>?> {
         val localVariableConfig = getEpgRequestConfig()
 
-        return request<Unit, kotlin.collections.List<EpgRow>>(
+        return request(
             localVariableConfig
         )
     }
@@ -85,7 +85,7 @@ class EpgApi(
      *
      * @return RequestConfig
      */
-    fun getEpgRequestConfig() : RequestConfig<Unit> {
+    private fun getEpgRequestConfig() : RequestConfig<Unit> {
         val localVariableBody = null
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()

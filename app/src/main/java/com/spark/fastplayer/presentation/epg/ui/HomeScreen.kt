@@ -1,6 +1,5 @@
 package com.spark.fastplayer.presentation.epg.ui
 
-import BottomSheetLayout
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -46,7 +45,7 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            showLoading(epgState.value)
+            ShowLoading(epgState.value)
             ModalBottomSheetLayout(
                 sheetState = modalSheetState,
                 sheetContent = { BottomSheetLayout(bottomSheetDataState.value) },
@@ -91,7 +90,7 @@ fun EPGGridView(
 
 
 @Composable
-fun showLoading(ePGState: EPGState) {
+fun ShowLoading(ePGState: EPGState) {
     if (ePGState == EPGState.Fetch) {
         Dialog(
             onDismissRequest = { },
