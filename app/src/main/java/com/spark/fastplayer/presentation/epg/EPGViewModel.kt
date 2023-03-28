@@ -3,6 +3,7 @@ package com.spark.fastplayer.presentation.epg
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.spark.fastplayer.common.CoroutineContextProvider
+import com.spark.fastplayer.common.isExpired
 import com.spark.fastplayer.data.pefs.DataStoreManager
 import com.spark.fastplayer.domain.repoisitory.EPGRepository
 import com.spark.fastplayer.presentation.player.PlayBackMetaData
@@ -30,6 +31,9 @@ class EPGViewModel @Inject constructor(
     private val _playbackState = MutableStateFlow<PlaybackState>(PlaybackState.None)
     val playbackState = _playbackState.asStateFlow()
 
+    private val epgList = mutableListOf<EpgRow>()
+    private val sanitizedEPGList = mutableListOf<EpgRow>()
+
     init {
         getEPGData()
     }
@@ -37,6 +41,7 @@ class EPGViewModel @Inject constructor(
     private fun getEPGData() {
         viewModelScope.launch(coroutineContextProvider.io) {
             val epgData = epgRepository.getEPGData()
+            epgList.addAll(epgData)
             if (epgData.isNotEmpty()) resumePlaybackFromHistory(epgData)
             filterTaxonomies(epgData)
         }
@@ -67,6 +72,30 @@ class EPGViewModel @Inject constructor(
                 tx
             }
             _epgState.value = EPGState.FetchSuccess(map.toList(), set.toList())
+        }
+    }
+
+    fun sanitizeEPGData() {
+        viewModelScope.launch(coroutineContextProvider.io) {
+            var isAnyProgramExpired = false
+            if (epgList.isNotEmpty()) {
+                sanitizedEPGList.clear()
+                epgList.map {
+                   it.programs?.filter {
+                       isAnyProgramExpired =  it.isExpired()
+                       !isAnyProgramExpired
+                   }?.let {
+                       sanitizedEPGList.add(EpgRow(it))
+                   }
+                }
+                if (isAnyProgramExpired)  {
+                    filterTaxonomies(sanitizedEPGList)
+                    epgList.apply {
+                        clear()
+                        addAll(sanitizedEPGList)
+                    }
+                }
+            }
         }
     }
 

@@ -55,6 +55,18 @@ fun OffsetDateTime?.getStreamType(scheduleEndTime: OffsetDateTime?): StreamType 
          }
     }
 }
+fun Program.isExpired() : Boolean{
+    return if ( scheduleEnd == null) true
+    else {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val currentLocalTime = Instant.now()
+            val scheduleEndInLocalTimeZone = this.scheduleEnd?.toInstant()?.atZone(ZoneId.systemDefault())?.toInstant()
+            currentLocalTime.isAfter(scheduleEndInLocalTimeZone)
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
+    }
+}
 
 fun Program.getFormattedScheduledTime() = scheduleStart?.toBroadCastTime() + " - " + scheduleEnd?.toBroadCastTime()
 

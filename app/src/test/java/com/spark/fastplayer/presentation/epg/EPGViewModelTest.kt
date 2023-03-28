@@ -19,6 +19,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.openapitools.client.models.*
+import java.time.OffsetDateTime
+import java.time.ZoneId
 
 @ExperimentalCoroutinesApi
 class EPGViewModelTest {
@@ -130,4 +132,32 @@ class EPGViewModelTest {
             }
         }
     }
+
+    @Test
+    fun epgViewModel_epgFetchData_remove_expired_programs_Test()  {
+        runTest {
+            val channel = Channel(
+                channelid = "chId",
+                taxonomies = listOf(Taxonomy(taxonomyId = "testId1"))
+            )
+            val p1 = Program(channel = channel, scheduleEnd = OffsetDateTime.parse("2019-08-31T15:20:30+08:00"))
+            val p2 = Program(channel = channel, scheduleEnd = OffsetDateTime.now(ZoneId.of("Asia/Jakarta")))
+            val channelPlaybackInfo = ChannelPlaybackInfo(channel = channel)
+
+            val epgData = listOf(EpgRow(listOf(p1, p2)))
+            coEvery { dataStoreManager.getChannelId } returns flow { emit("") }
+            coEvery { dataStoreManager.getTaxonomyId } returns  flow { emit("") }
+            coEvery { repository.getEPGData() } returns epgData
+            coEvery { repository.getChannelStreamInfo("chId") } returns channelPlaybackInfo
+            val viewModel = EPGViewModel(repository, coroutineContextProvider, dataStoreManager)
+
+            viewModel.sanitizeEPGData()
+
+            viewModel.epgState.test {
+                val state = this.awaitItem()
+                Assert.assertTrue(state is EPGState.FetchSuccess)
+            }
+        }
+    }
+
 }
