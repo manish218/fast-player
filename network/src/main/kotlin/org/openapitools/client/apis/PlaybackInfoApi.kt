@@ -77,7 +77,7 @@ class PlaybackInfoApi(
     fun getPlaybackinfoWithHttpInfo(channelId: kotlin.String) : ApiResponse<ChannelPlaybackInfo?> {
         val localVariableConfig = getPlaybackinfoRequestConfig(channelId = channelId)
 
-        return request<Unit, ChannelPlaybackInfo>(
+        return request(
             localVariableConfig
         )
     }
@@ -88,7 +88,7 @@ class PlaybackInfoApi(
      * @param channelId 
      * @return RequestConfig
      */
-    fun getPlaybackinfoRequestConfig(channelId: kotlin.String) : RequestConfig<Unit> {
+    private fun getPlaybackinfoRequestConfig(channelId: kotlin.String) : RequestConfig<Unit> {
         val localVariableBody = null
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
@@ -97,7 +97,7 @@ class PlaybackInfoApi(
 
         return RequestConfig(
             method = RequestMethod.GET,
-            path = "/channelPlaybackInfo/{channel-id}".replace("{"+"channel-id"+"}", encodeURIComponent(channelId.toString())),
+            path = "/channelPlaybackInfo/{channel-id}".replace("{"+"channel-id"+"}", encodeURIComponent(channelId)),
             query = localVariableQuery,
             headers = localVariableHeaders,
             body = localVariableBody

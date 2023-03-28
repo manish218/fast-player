@@ -31,7 +31,7 @@ fun Color.Companion.random(): Color {
     return Color(red, green, blue)
 }
 
-fun OffsetDateTime.toBroadCastTime(): String? {
+fun OffsetDateTime.toBroadCastTime(): String {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         this.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().toString()
     } else {

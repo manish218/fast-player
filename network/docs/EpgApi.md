@@ -21,7 +21,7 @@ Fetch EPG sorted by taxonomies
 
 val apiInstance = EpgApi()
 try {
-    val result : kotlin.collections.List<EpgRow> = apiInstance.getEpg()
+    val result : List<EpgRow> = apiInstance.getEpg()
     println(result)
 } catch (e: ClientException) {
     println("4xx response calling EpgApi#getEpg")
