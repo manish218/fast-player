@@ -10,4 +10,4 @@ val BackgroundColor = Color.Black
 val SurfaceColor = Color.DarkGray
 val TextColor = Color.White
 val LiveBadgeColor = Color.Red
-val UpcomingBadgeColor = Color.Black
+val UpcomingBadgeColor = Color.Blue
