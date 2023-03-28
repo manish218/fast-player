@@ -73,7 +73,7 @@ class EPGViewModel @Inject constructor(
     private fun resumePlaybackFromHistory(epgList: List<EpgRow>) {
         viewModelScope.launch(coroutineContextProvider.io) {
             _playbackState.value = PlaybackState.Init
-            if (dataStoreManager.getTaxonomyId.first().isEmpty() || dataStoreManager.getChannelId.first().isEmpty()) {
+            if (dataStoreManager.getTaxonomyId.first().isEmpty() && dataStoreManager.getChannelId.first().isEmpty()) {
                 playFirstEPGProgram(epgList)
             } else {
                 getLastWatchedProgram(
