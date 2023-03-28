@@ -50,7 +50,7 @@ fun HomeScreen(
                 sheetState = modalSheetState,
                 sheetContent = { BottomSheetLayout(bottomSheetDataState.value) },
                 sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                scrimColor = Color.Black.copy(alpha = 0.4f),
+                scrimColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
             ) {
                 Column {
                     RenderPlayer(playbackState = playbackState)
@@ -100,7 +100,7 @@ fun showLoading(ePGState: EPGState) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(100.dp)
-                    .background(Color.DarkGray, shape = RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
             ) {
                 /*TO DO */
                 //current theme doesn't support loading indicator
@@ -119,17 +119,17 @@ fun RenderPlayer(playbackState: MutableState<PlaybackState>) {
         Configuration.ORIENTATION_LANDSCAPE ->  {
             systemUiController.isSystemBarsVisible = false
             systemUiController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            Modifier.background(color = Color.Black).wrapContentSize()
+            Modifier.background(color = MaterialTheme.colorScheme.primary).wrapContentSize()
         }
         else -> {
             systemUiController.isSystemBarsVisible = true
-            Modifier.background(color = Color.Black).fillMaxHeight(0.28f).fillMaxWidth()
+            Modifier.background(color = MaterialTheme.colorScheme.primary).fillMaxHeight(0.28f).fillMaxWidth()
         }
     }
     if (playbackState.value is PlaybackState.PlaybackSuccess) {
         Surface(
             modifier = modifier
-                .background(Color.Black)
+                .background(MaterialTheme.colorScheme.primary)
                 .fillMaxSize()
         ) {
             VideoPlayerWidget(playbackState = playbackState.value)

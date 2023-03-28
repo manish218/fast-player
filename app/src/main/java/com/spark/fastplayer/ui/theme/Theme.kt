@@ -18,27 +18,25 @@ import androidx.core.view.ViewCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color.Black,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
-    background =Color.Black
+    primary = primary,
+    secondary = secondaryColor,
+    tertiary = tertiary,
+    background = BackgroundColor,
+    secondaryContainer = SurfaceColor,
+    surface = SurfaceColor,
+    onPrimary = TextColor,
+    onBackground = BackgroundColor
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Color.Black,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
-    background = Color.Black
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary = secondaryColor,
+    tertiary = tertiary,
+    background = Color.Black,
+    secondaryContainer = Color.DarkGray,
+    surface = SurfaceColor,
+    onPrimary = TextColor,
+    onBackground = BackgroundColor,
 )
 
 @Composable
