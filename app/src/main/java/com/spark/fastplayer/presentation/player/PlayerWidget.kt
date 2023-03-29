@@ -108,7 +108,7 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlayBackMetaDa
             modifier = Modifier
                 .clickable {
                     shouldShowControls = shouldShowControls.not()
-                }
+                }.background(MaterialTheme.colorScheme.primary)
                 .constrainAs(playerView) {},
             factory = {
                 StyledPlayerView(context).apply {

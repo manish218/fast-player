@@ -29,7 +29,7 @@ fun EpgTaxonomyCollection(
 ) {
     LazyRow(
         modifier = modifier,
-        contentPadding = PaddingValues( end = 12.dp)
+        contentPadding = PaddingValues( start = 8.dp , end = 12.dp)
     ) {
         itemsIndexed(taxonomyList) { _, taxonomy ->
             taxonomy?.title?.let {
