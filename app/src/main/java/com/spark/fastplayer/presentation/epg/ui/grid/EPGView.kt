@@ -33,11 +33,9 @@ fun FeedEPGData(
 ) {
     when (epgState) {
         is EPGState.FetchSuccess -> {
-            val epgRowCollection = remember { epgState.map }
-            val taxonomyCollection = remember { epgState.taxonomies }
             RenderEPGGrid(
-                epgRowCollection,
-                taxonomyCollection,
+                epgState.map,
+                epgState.taxonomies,
                 onProgramClick,
                 onProgramLongClick,
                 modifier
