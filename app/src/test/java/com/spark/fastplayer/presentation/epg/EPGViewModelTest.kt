@@ -3,6 +3,7 @@ package com.spark.fastplayer.presentation.epg
 import app.cash.turbine.test
 import com.spark.fastplayer.MainCoroutineRule
 import com.spark.fastplayer.TestCoroutineContextProvider
+import com.spark.fastplayer.common.isExpired
 import com.spark.fastplayer.data.pefs.DataStoreManager
 import com.spark.fastplayer.domain.repoisitory.EPGRepository
 import com.spark.fastplayer.presentation.player.PlaybackState
@@ -20,7 +21,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.openapitools.client.models.*
 import java.time.OffsetDateTime
-import java.time.ZoneId
 
 @ExperimentalCoroutinesApi
 class EPGViewModelTest {
@@ -141,7 +141,7 @@ class EPGViewModelTest {
                 taxonomies = listOf(Taxonomy(taxonomyId = "testId1"))
             )
             val p1 = Program(channel = channel, scheduleEnd = OffsetDateTime.parse("2019-08-31T15:20:30+08:00"))
-            val p2 = Program(channel = channel, scheduleEnd = OffsetDateTime.now(ZoneId.of("Asia/Jakarta")))
+            val p2 = Program(channel = channel, scheduleEnd = OffsetDateTime.parse("2027-08-31T15:20:30+08:00"))
             val channelPlaybackInfo = ChannelPlaybackInfo(channel = channel)
 
             val epgData = listOf(EpgRow(listOf(p1, p2)))
@@ -156,6 +156,7 @@ class EPGViewModelTest {
             viewModel.epgState.test {
                 val state = this.awaitItem()
                 Assert.assertTrue(state is EPGState.FetchSuccess)
+                Assert.assertEquals(1, (state as EPGState.FetchSuccess).map.first().second.first().programs!!.size)
             }
         }
     }

@@ -77,18 +77,9 @@ class EPGViewModel @Inject constructor(
 
     fun sanitizeEPGData() {
         viewModelScope.launch(coroutineContextProvider.io) {
-            var isAnyProgramExpired = false
             if (epgList.isNotEmpty()) {
-                sanitizedEPGList.clear()
-                epgList.map {
-                   it.programs?.filter {
-                       isAnyProgramExpired =  it.isExpired()
-                       !isAnyProgramExpired
-                   }?.let {
-                       sanitizedEPGList.add(EpgRow(it))
-                   }
-                }
-                if (isAnyProgramExpired)  {
+                val forceRefreshEPG = filterExpiredPrograms()
+                if (forceRefreshEPG)  {
                     filterTaxonomies(sanitizedEPGList)
                     epgList.apply {
                         clear()
@@ -97,6 +88,20 @@ class EPGViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun filterExpiredPrograms(): Boolean {
+        var expiredProgramExists = false
+        sanitizedEPGList.clear()
+        epgList.forEach {
+            val validPList: List<Program> =  it.programs.asNotNullList().filter { program ->
+                val isExpired =  program.isExpired()
+                if (isExpired) expiredProgramExists = true
+                filter@ !isExpired
+            }
+            sanitizedEPGList.add(EpgRow(validPList))
+        }
+        return expiredProgramExists
     }
 
     private fun resumePlaybackFromHistory(epgList: List<EpgRow>) {
