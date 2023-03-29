@@ -38,7 +38,7 @@ fun HomeScreen(
     playbackState: MutableState<PlaybackState>,
     onProgramClick: (String, String) -> Unit,
     onRefreshEPG: () -> Unit,
-    refreshInterval: Long = 15000L
+    refreshInterval: Long = 1000*60*5L
 ) {
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
