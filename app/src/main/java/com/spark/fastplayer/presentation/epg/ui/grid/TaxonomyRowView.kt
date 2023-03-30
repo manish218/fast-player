@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,7 +29,7 @@ fun EpgTaxonomyCollection(
 ) {
     LazyRow(
         modifier = modifier,
-        contentPadding = PaddingValues( end = 12.dp)
+        contentPadding = PaddingValues( start = 8.dp , end = 12.dp)
     ) {
         itemsIndexed(taxonomyList) { _, taxonomy ->
             taxonomy?.title?.let {
@@ -75,7 +76,7 @@ fun TaxonomyLabel(
                 text = txName,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

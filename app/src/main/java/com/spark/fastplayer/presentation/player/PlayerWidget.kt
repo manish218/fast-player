@@ -12,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -110,7 +109,7 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState)
             modifier = Modifier
                 .clickable {
                     shouldShowControls = shouldShowControls.not()
-                }.background(Color.Black)
+                }.background(MaterialTheme.colorScheme.primary)
                 .constrainAs(playerView) {},
             factory = {
                 StyledPlayerView(context).apply {
@@ -140,7 +139,7 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState)
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            Box(modifier = Modifier.background(Color.Black.copy(alpha = 0.6f))) {
+            Box(modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))) {
                if(playbackState is PlaybackState.PlaybackSuccess) {
                    TopControl(
                        modifier = Modifier
@@ -209,7 +208,7 @@ private fun TopControl(modifier: Modifier = Modifier, playBackMetaData: PlayBack
                 modifier = modifier.padding(start = 16.dp),
                 text = playBackMetaData?.title.orEmpty(),
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontWeight = FontWeight.Bold
             )
 
@@ -217,7 +216,7 @@ private fun TopControl(modifier: Modifier = Modifier, playBackMetaData: PlayBack
                 modifier = modifier.padding(start = 16.dp),
                 text = playBackMetaData?.description.orEmpty(),
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -238,8 +237,8 @@ private fun BottomControls(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 16.dp),
-            color = Color.White,
-            trackColor = Color.White
+            color = MaterialTheme.colorScheme.onPrimary,
+            trackColor = MaterialTheme.colorScheme.onPrimary
         )
 
 
