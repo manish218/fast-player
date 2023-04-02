@@ -1,8 +1,16 @@
 package com.spark.fastplayer.presentation.player
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.app.PictureInPictureParams
+import android.app.RemoteAction
+import android.content.Intent
+import android.graphics.Rect
+import android.os.Build
+import android.util.Rational
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,9 +18,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.internal.enableLiveLiterals
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -36,7 +48,7 @@ import com.spark.fastplayer.common.noRippleClickable
 
 @SuppressLint("ResourceAsColor")
 @Composable
-fun VideoPlayerWidget(playbackState: PlaybackState) {
+fun VideoPlayerWidget(playbackState: PlaybackState, videoViewBounds: Rect, isVideoPlayingInPiPMode: MutableState<Boolean>) {
 
     val context = LocalContext.current
     val exoPlayer = remember {
@@ -48,7 +60,7 @@ fun VideoPlayerWidget(playbackState: PlaybackState) {
 
     when (playbackState) {
         is PlaybackState.PlaybackSuccess -> {
-            RenderPlayerView(exoPlayer, playbackState)
+            RenderPlayerView(exoPlayer, playbackState, videoViewBounds)
             exoPlayer.setMediaItem(MediaItem.Builder()
                 .apply {
                     setUri(playbackState.metData.streamUrl)
@@ -62,35 +74,15 @@ fun VideoPlayerWidget(playbackState: PlaybackState) {
             exoPlayer.play()
         }
         is PlaybackState.Init -> {
-            RenderPlayerView(exoPlayer, playbackState)
+            RenderPlayerView(exoPlayer, playbackState, videoViewBounds)
         }
         else -> { }
     }
 
-    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-
     Box(modifier = Modifier) {
         DisposableEffect(key1 = Unit) {
-
-            val observer = LifecycleEventObserver { owner, event ->
-                when (event) {
-                    Lifecycle.Event.ON_PAUSE -> {
-                        exoPlayer.pause()
-                    }
-                    Lifecycle.Event.ON_RESUME -> {
-                        exoPlayer.play()
-                    }
-                    else -> {
-                        exoPlayer.pause()
-                    }
-                }
-            }
-            val lifecycle = lifecycleOwner.value.lifecycle
-            lifecycle.addObserver(observer)
-
             onDispose {
                 exoPlayer.release()
-                lifecycle.removeObserver(observer)
             }
         }
     }
@@ -98,7 +90,8 @@ fun VideoPlayerWidget(playbackState: PlaybackState) {
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState) {
+private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState, videoViewBounds: Rect) {
+    var bounds = videoViewBounds
     var shouldShowControls by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -107,9 +100,12 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState)
 
         AndroidView(
             modifier = Modifier
+                  .onGloballyPositioned {
+                      it.boundsInWindow().toAndroidRect()
+                 }
                 .clickable {
                     shouldShowControls = shouldShowControls.not()
-                }.background(MaterialTheme.colorScheme.primary)
+                }
                 .constrainAs(playerView) {},
             factory = {
                 StyledPlayerView(context).apply {

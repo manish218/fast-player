@@ -1,5 +1,7 @@
 package com.spark.fastplayer.common
 
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -57,4 +59,6 @@ fun OffsetDateTime?.getStreamType(scheduleEndTime: OffsetDateTime?): StreamType 
 }
 
 fun Program.getFormattedScheduledTime() = scheduleStart?.toBroadCastTime() + " - " + scheduleEnd?.toBroadCastTime()
+
+fun Context.hasPipSupport() = packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
 

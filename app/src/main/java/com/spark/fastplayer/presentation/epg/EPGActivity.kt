@@ -1,12 +1,19 @@
 package com.spark.fastplayer.presentation.epg
 
+import android.app.PictureInPictureParams
+import android.content.res.Configuration
+import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
+import android.util.Rational
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import com.spark.fastplayer.common.hasPipSupport
 import com.spark.fastplayer.presentation.epg.ui.BottomSheetDataState
 import com.spark.fastplayer.presentation.epg.ui.HomeScreen
 import com.spark.fastplayer.presentation.player.PlaybackState
@@ -26,6 +33,14 @@ class EPGActivity : ComponentActivity() {
     private var bottomSheetDataState = mutableStateOf<BottomSheetDataState>(BottomSheetDataState.Init())
 
     private var playbackState = mutableStateOf<PlaybackState>(PlaybackState.None)
+
+    private var videoViewBounds = Rect()
+
+    private var pipModeState = mutableStateOf<Boolean>(false)
+
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen().apply {
@@ -41,9 +56,12 @@ class EPGActivity : ComponentActivity() {
                 playbackState = playbackState,
                 onProgramClick = { channelId, taxonomyId ->
                     epgViewModel.initPlayback(channelId, taxonomyId)
-                }
+                },
+                videoViewBounds = videoViewBounds,
+                isVideoPlayingInPiPMode = pipModeState
             )
         }
+        initObservers()
         renderEPGData()
     }
 
@@ -80,4 +98,46 @@ class EPGActivity : ComponentActivity() {
             }
         }
     }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun initObservers() {
+        if (/*isPlaying && */hasPipSupport()) {
+            setPictureInPictureParams(updatedPipParams())
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun updatedPipParams(): PictureInPictureParams {
+        return PictureInPictureParams.Builder()
+            .setSourceRectHint(videoViewBounds)
+            .setAspectRatio(Rational(16, 9))
+            .build()
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        pipModeState.value = isInPictureInPictureMode
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if(!hasPipSupport()) {
+            return
+        }
+        updatedPipParams()?.let { params ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                enterPictureInPictureMode(params)
+            }
+        }
+    }
+
+
+
 }
