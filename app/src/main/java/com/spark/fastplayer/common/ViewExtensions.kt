@@ -1,6 +1,5 @@
 package com.spark.fastplayer.common
 
-import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
@@ -32,28 +31,28 @@ fun Color.Companion.random(): Color {
 }
 
 fun OffsetDateTime.toBroadCastTime(): String {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        this.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().toString()
-    } else {
-        TODO("VERSION.SDK_INT < O")
-    }
+    return this.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().toString()
 }
 fun OffsetDateTime?.getStreamType(scheduleEndTime: OffsetDateTime?): StreamType {
     return if (this == null || scheduleEndTime == null) StreamType.None
-    else {
-         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-             val currentLocalTime = Instant.now()
-             val scheduleStartInLocalTimeZone = toInstant().atZone(ZoneId.systemDefault()).toInstant()
-             val scheduleEndInLocalTimeZone = scheduleEndTime.toInstant().atZone(ZoneId.systemDefault()).toInstant()
-             if (currentLocalTime.isBefore(scheduleStartInLocalTimeZone)) {
-                 StreamType.Upcoming
-             } else if (currentLocalTime.isAfter(scheduleStartInLocalTimeZone) &&currentLocalTime.isBefore(scheduleEndInLocalTimeZone)) {
-                 StreamType.Live
-             } else StreamType.None
-         } else {
-             TODO("VERSION.SDK_INT < O")
-         }
+      else {
+        val currentLocalTime = Instant.now()
+        val scheduleStartInLocalTimeZone = toInstant().atZone(ZoneId.systemDefault()).toInstant()
+        val scheduleEndInLocalTimeZone =
+            scheduleEndTime.toInstant().atZone(ZoneId.systemDefault()).toInstant()
+         if (currentLocalTime.isBefore(scheduleStartInLocalTimeZone)) {
+            StreamType.Upcoming
+        } else if (currentLocalTime.isAfter(scheduleStartInLocalTimeZone) && currentLocalTime.isBefore(scheduleEndInLocalTimeZone)) {
+            StreamType.Live
+        } else StreamType.None
     }
+}
+
+fun Program.isExpired(): Boolean {
+    val currentLocalTime = Instant.now()
+    val scheduleEndInLocalTimeZone =
+        this.scheduleEnd?.toInstant()?.atZone(ZoneId.systemDefault())?.toInstant()
+   return currentLocalTime.isAfter(scheduleEndInLocalTimeZone)
 }
 
 fun Program.getFormattedScheduledTime() = scheduleStart?.toBroadCastTime() + " - " + scheduleEnd?.toBroadCastTime()

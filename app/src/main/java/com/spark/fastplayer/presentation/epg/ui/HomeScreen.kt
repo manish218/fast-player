@@ -8,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -26,6 +27,7 @@ import com.spark.fastplayer.presentation.player.PlaybackState
 import com.spark.fastplayer.presentation.player.VideoPlayerWidget
 import com.spark.fastplayer.ui.theme.FastPlayerTheme
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -34,7 +36,9 @@ fun HomeScreen(
     bottomSheetDataState: MutableState<BottomSheetDataState>,
     epgState: MutableState<EPGState>,
     playbackState: MutableState<PlaybackState>,
-    onProgramClick: (String, String) -> Unit
+    onProgramClick: (String, String) -> Unit,
+    onRefreshEPG: () -> Unit,
+    refreshInterval: Long = 1000*60*5L
 ) {
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
@@ -65,6 +69,7 @@ fun HomeScreen(
             }
         }
     }
+    forceRefreshEPGView(onRefreshEPG, refreshInterval)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -135,3 +140,15 @@ fun RenderPlayer(playbackState: MutableState<PlaybackState>) {
         VideoPlayerWidget(playbackState = playbackState.value)
     }
 }
+@Composable
+private fun forceRefreshEPGView( onRefreshEPG: () -> Unit, refreshInterval: Long) {
+    LaunchedEffect(Unit) {
+        while(true) {
+            onRefreshEPG.invoke()
+            delay(refreshInterval)
+        }
+    }
+}
+
+
+

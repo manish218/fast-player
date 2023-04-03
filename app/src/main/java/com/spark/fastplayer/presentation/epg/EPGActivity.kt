@@ -41,7 +41,8 @@ class EPGActivity : ComponentActivity() {
                 playbackState = playbackState,
                 onProgramClick = { channelId, taxonomyId ->
                     epgViewModel.initPlayback(channelId, taxonomyId)
-                }
+                },
+                onRefreshEPG = { epgViewModel.sanitizeEPGData() }
             )
         }
         renderEPGData()

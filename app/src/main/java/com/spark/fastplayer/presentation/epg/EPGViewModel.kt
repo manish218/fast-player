@@ -3,6 +3,7 @@ package com.spark.fastplayer.presentation.epg
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.spark.fastplayer.common.CoroutineContextProvider
+import com.spark.fastplayer.common.isExpired
 import com.spark.fastplayer.data.pefs.DataStoreManager
 import com.spark.fastplayer.domain.repoisitory.EPGRepository
 import com.spark.fastplayer.presentation.player.PlayBackMetaData
@@ -30,6 +31,9 @@ class EPGViewModel @Inject constructor(
     private val _playbackState = MutableStateFlow<PlaybackState>(PlaybackState.None)
     val playbackState = _playbackState.asStateFlow()
 
+    private val epgList = mutableListOf<EpgRow>()
+    private val sanitizedEPGList = mutableListOf<EpgRow>()
+
     init {
         getEPGData()
     }
@@ -37,6 +41,7 @@ class EPGViewModel @Inject constructor(
     private fun getEPGData() {
         viewModelScope.launch(coroutineContextProvider.io) {
             val epgData = epgRepository.getEPGData()
+            epgList.addAll(epgData)
             if (epgData.isNotEmpty()) resumePlaybackFromHistory(epgData)
             filterTaxonomies(epgData)
         }
@@ -68,6 +73,35 @@ class EPGViewModel @Inject constructor(
             }
             _epgState.value = EPGState.FetchSuccess(map.toList(), set.toList())
         }
+    }
+
+    fun sanitizeEPGData() {
+        viewModelScope.launch(coroutineContextProvider.io) {
+            if (epgList.isNotEmpty()) {
+                val forceRefreshEPG = filterExpiredPrograms()
+                if (forceRefreshEPG)  {
+                    filterTaxonomies(sanitizedEPGList)
+                    epgList.apply {
+                        clear()
+                        addAll(sanitizedEPGList)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun filterExpiredPrograms(): Boolean {
+        var expiredProgramExists = false
+        sanitizedEPGList.clear()
+        epgList.forEach {
+            val validPList: List<Program> =  it.programs.asNotNullList().filter { program ->
+                val isExpired =  program.isExpired()
+                if (isExpired) expiredProgramExists = true
+                filter@ !isExpired
+            }
+            sanitizedEPGList.add(EpgRow(validPList))
+        }
+        return expiredProgramExists
     }
 
     private fun resumePlaybackFromHistory(epgList: List<EpgRow>) {
