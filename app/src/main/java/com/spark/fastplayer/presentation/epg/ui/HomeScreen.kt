@@ -36,7 +36,6 @@ fun HomeScreen(
     epgState: MutableState<EPGState>,
     playbackState: MutableState<PlaybackState>,
     onProgramClick: (String, String) -> Unit,
-    videoViewBounds: Rect,
     isVideoPlayingInPiPMode: MutableState<Boolean>
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -56,7 +55,7 @@ fun HomeScreen(
                 scrimColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
             ) {
                 Column {
-                    RenderPlayer(playbackState = playbackState, videoViewBounds = videoViewBounds, isVideoPlayingInPiPMode = isVideoPlayingInPiPMode)
+                    RenderPlayer(playbackState = playbackState, isVideoPlayingInPiPMode = isVideoPlayingInPiPMode)
                     EPGGridView(
                         coroutine = coroutineScope,
                         bottomSheetState = modalSheetState,
@@ -118,7 +117,6 @@ fun ShowLoading(ePGState: EPGState) {
 @Composable
 fun RenderPlayer(
     playbackState: MutableState<PlaybackState>,
-    videoViewBounds: Rect,
     isVideoPlayingInPiPMode: MutableState<Boolean>
 ) {
    val configuration = LocalConfiguration.current
@@ -134,19 +132,18 @@ fun RenderPlayer(
         }
         else -> {
             systemUiController.isSystemBarsVisible = true
-            if (!isVideoPlayingInPiPMode.value) Modifier
+            Modifier
                 .background(color = MaterialTheme.colorScheme.primary)
-                .fillMaxHeight(0.28f)
-                .fillMaxWidth()
-            else Modifier
-                .background(color = MaterialTheme.colorScheme.primary)
-                .wrapContentSize()
+                .run {
+                    if (!isVideoPlayingInPiPMode.value)  fillMaxHeight(0.28f).fillMaxWidth()
+                    else this.wrapContentSize()
+                }
         }
     }
 
     Surface(
         modifier = modifier.background(MaterialTheme.colorScheme.primary).fillMaxSize()
     ) {
-        VideoPlayerWidget(playbackState = playbackState.value, videoViewBounds = videoViewBounds, isVideoPlayingInPiPMode= isVideoPlayingInPiPMode)
+        VideoPlayerWidget(playbackState = playbackState.value)
     }
 }

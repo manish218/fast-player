@@ -34,11 +34,7 @@ class EPGActivity : ComponentActivity() {
 
     private var playbackState = mutableStateOf<PlaybackState>(PlaybackState.None)
 
-    private var videoViewBounds = Rect()
-
     private var pipModeState = mutableStateOf<Boolean>(false)
-
-
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,11 +53,9 @@ class EPGActivity : ComponentActivity() {
                 onProgramClick = { channelId, taxonomyId ->
                     epgViewModel.initPlayback(channelId, taxonomyId)
                 },
-                videoViewBounds = videoViewBounds,
                 isVideoPlayingInPiPMode = pipModeState
             )
         }
-        initObservers()
         renderEPGData()
     }
 
@@ -101,16 +95,8 @@ class EPGActivity : ComponentActivity() {
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun initObservers() {
-        if (/*isPlaying && */hasPipSupport()) {
-            setPictureInPictureParams(updatedPipParams())
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun updatedPipParams(): PictureInPictureParams {
         return PictureInPictureParams.Builder()
-            .setSourceRectHint(videoViewBounds)
             .setAspectRatio(Rational(16, 9))
             .build()
 
@@ -123,6 +109,11 @@ class EPGActivity : ComponentActivity() {
     ) {
         pipModeState.value = isInPictureInPictureMode
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        renderEPGData()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
