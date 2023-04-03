@@ -1,6 +1,5 @@
 package com.spark.fastplayer.presentation.epg.ui
 
-import BottomSheetLayout
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -27,6 +27,7 @@ import com.spark.fastplayer.presentation.player.PlaybackState
 import com.spark.fastplayer.presentation.player.VideoPlayerWidget
 import com.spark.fastplayer.ui.theme.FastPlayerTheme
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -35,7 +36,9 @@ fun HomeScreen(
     bottomSheetDataState: MutableState<BottomSheetDataState>,
     epgState: MutableState<EPGState>,
     playbackState: MutableState<PlaybackState>,
-    onProgramClick: (String) -> Unit
+    onProgramClick: (String, String) -> Unit,
+    onRefreshEPG: () -> Unit,
+    refreshInterval: Long = 1000*60*5L
 ) {
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
@@ -46,6 +49,7 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
+            ShowLoading(epgState.value)
             ModalBottomSheetLayout(
                 sheetState = modalSheetState,
                 sheetContent = { BottomSheetLayout(bottomSheetDataState.value) },
@@ -65,6 +69,7 @@ fun HomeScreen(
             }
         }
     }
+    forceRefreshEPGView(onRefreshEPG, refreshInterval)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -74,7 +79,7 @@ fun EPGGridView(
     bottomSheetState: ModalBottomSheetState,
     epgState: MutableState<EPGState>,
     bottomSheetDataState: MutableState<BottomSheetDataState>,
-    onProgramClick: (String) -> Unit
+    onProgramClick: (String, String) -> Unit
 ) {
     FeedEPGData(
         onProgramClick = onProgramClick,
@@ -90,7 +95,7 @@ fun EPGGridView(
 
 
 @Composable
-fun showLoading(ePGState: EPGState) {
+fun ShowLoading(ePGState: EPGState) {
     if (ePGState == EPGState.Fetch) {
         Dialog(
             onDismissRequest = { },
@@ -102,9 +107,11 @@ fun showLoading(ePGState: EPGState) {
                     .size(100.dp)
                     .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
             ) {
-                /*TO DO */
-                //current theme doesn't support loading indicator
-                //CircularProgressIndicator(LocalContext.current)
+                CircularProgressIndicator(
+                    color = Color.Red,
+                    strokeWidth = 4.dp,
+                    modifier = Modifier.size(48.dp)
+                )
             }
         }
     }
@@ -126,13 +133,22 @@ fun RenderPlayer(playbackState: MutableState<PlaybackState>) {
             Modifier.background(color = MaterialTheme.colorScheme.primary).fillMaxHeight(0.28f).fillMaxWidth()
         }
     }
-    if (playbackState.value is PlaybackState.PlaybackSuccess) {
-        Surface(
-            modifier = modifier
-                .background(MaterialTheme.colorScheme.primary)
-                .fillMaxSize()
-        ) {
-            VideoPlayerWidget(playbackState = playbackState.value)
+
+    Surface(
+        modifier = modifier.background(MaterialTheme.colorScheme.primary).fillMaxSize()
+    ) {
+        VideoPlayerWidget(playbackState = playbackState.value)
+    }
+}
+@Composable
+private fun forceRefreshEPGView( onRefreshEPG: () -> Unit, refreshInterval: Long) {
+    LaunchedEffect(Unit) {
+        while(true) {
+            onRefreshEPG.invoke()
+            delay(refreshInterval)
         }
     }
 }
+
+
+

@@ -1,3 +1,5 @@
+package com.spark.fastplayer.presentation.epg.ui
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*

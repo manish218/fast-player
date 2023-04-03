@@ -1,6 +1,5 @@
 package com.spark.fastplayer.presentation.epg.ui.item
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
@@ -8,21 +7,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.spark.fastplayer.common.getFormattedScheduledTime
 import com.spark.fastplayer.common.getStreamType
-import com.spark.fastplayer.common.toBroadCastTime
 import com.spark.fastplayer.presentation.epg.StreamType
 import com.spark.fastplayer.presentation.epg.ui.EPGCardItemSurface
 import org.openapitools.client.models.Program
-
-import com.spark.fastplayer.common.getFormattedScheduledTime
-import com.spark.fastplayer.common.getStreamType
-import com.spark.fastplayer.presentation.epg.ui.EPGCardItemSurface
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProgramCardView(
     program: Program,
-    onProgramClicked: (String) -> Unit,
+    onProgramClicked: (String, String) -> Unit,
     onLongPressedCallback: (Program) -> Unit
 ) {
     EPGCardItemSurface(
@@ -39,7 +34,7 @@ fun ProgramCardView(
                 .height(72.dp)
                 .combinedClickable(
                     onClick = { if (program.scheduleStart.getStreamType(program.scheduleEnd) == StreamType.Live) {
-                        onProgramClicked(program.channel?.channelid.orEmpty())
+                        onProgramClicked(program.channel?.channelid.orEmpty(), program.taxonomies?.first()?.taxonomyId.orEmpty())
                     } },
                     onLongClick = {onLongPressedCallback(program) },
                 )

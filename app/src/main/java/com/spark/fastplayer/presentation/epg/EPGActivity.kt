@@ -39,9 +39,10 @@ class EPGActivity : ComponentActivity() {
                 bottomSheetDataState = bottomSheetDataState,
                 epgState = epgState,
                 playbackState = playbackState,
-                onProgramClick = { channelId ->
-                    epgViewModel.initPlayback(channelId)
-                }
+                onProgramClick = { channelId, taxonomyId ->
+                    epgViewModel.initPlayback(channelId, taxonomyId)
+                },
+                onRefreshEPG = { epgViewModel.sanitizeEPGData() }
             )
         }
         renderEPGData()
@@ -53,6 +54,9 @@ class EPGActivity : ComponentActivity() {
                 when(action) {
                     is PlaybackState.PlaybackSuccess -> {
                         playbackState.value = PlaybackState.PlaybackSuccess(action.metData)
+                    }
+                    is PlaybackState.Init -> {
+                        playbackState.value = PlaybackState.Init
                     }
                     else -> {
                         // not handling error/failure currently

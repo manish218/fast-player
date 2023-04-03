@@ -1,12 +1,15 @@
 package com.spark.fastplayer.di
 
 
+import android.content.Context
 import com.spark.fastplayer.BuildConfig
+import com.spark.fastplayer.data.pefs.DataStoreManager
 import com.spark.fastplayer.data.repository.EPGRepositoryImpl
 import com.spark.fastplayer.domain.repoisitory.EPGRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -44,6 +47,9 @@ class EPGModule {
         okHttpClient: OkHttpClient,
         @Named(X_API_KEY) apiKey: String
     ) = EpgApi(baseUrl, okHttpClient, apiKey)
+
+    @Provides
+    fun providesDataStoreManager(@ApplicationContext context: Context) = DataStoreManager(context)
 
     @Provides
     @Named(BASE_URL)

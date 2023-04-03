@@ -48,7 +48,7 @@ fun VideoPlayerWidget(playbackState: PlaybackState) {
 
     when (playbackState) {
         is PlaybackState.PlaybackSuccess -> {
-            RenderPlayerView(exoPlayer, playbackState.metData)
+            RenderPlayerView(exoPlayer, playbackState)
             exoPlayer.setMediaItem(MediaItem.Builder()
                 .apply {
                     setUri(playbackState.metData.streamUrl)
@@ -61,9 +61,10 @@ fun VideoPlayerWidget(playbackState: PlaybackState) {
             exoPlayer.playWhenReady = true
             exoPlayer.play()
         }
-        else -> {
-
+        is PlaybackState.Init -> {
+            RenderPlayerView(exoPlayer, playbackState)
         }
+        else -> { }
     }
 
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
@@ -97,7 +98,7 @@ fun VideoPlayerWidget(playbackState: PlaybackState) {
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlayBackMetaData?) {
+private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState) {
     var shouldShowControls by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -139,25 +140,26 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlayBackMetaDa
             exit = fadeOut()
         ) {
             Box(modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))) {
-                TopControl(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .fillMaxWidth()
-                        .animateEnterExit(
-                            enter = slideInVertically(
-                                initialOffsetY = { fullHeight: Int ->
-                                    fullHeight
-                                }
-                            ),
-                            exit = slideOutVertically(
-                                targetOffsetY = { fullHeight: Int ->
-                                    fullHeight
-                                }
-                            )
-                        ),
-                    playBackMetaData = playbackState
-                )
-
+               if(playbackState is PlaybackState.PlaybackSuccess) {
+                   TopControl(
+                       modifier = Modifier
+                           .align(Alignment.TopStart)
+                           .fillMaxWidth()
+                           .animateEnterExit(
+                               enter = slideInVertically(
+                                   initialOffsetY = { fullHeight: Int ->
+                                       fullHeight
+                                   }
+                               ),
+                               exit = slideOutVertically(
+                                   targetOffsetY = { fullHeight: Int ->
+                                       fullHeight
+                                   }
+                               )
+                           ),
+                       playBackMetaData = playbackState.metData
+                   )
+               }
                 BottomControls(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)

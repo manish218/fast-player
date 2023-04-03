@@ -1,6 +1,7 @@
 package com.spark.fastplayer.di
 
 import com.spark.fastplayer.common.CoroutineContextProvider
+import com.spark.fastplayer.data.pefs.DataStoreManager
 import com.spark.fastplayer.domain.repoisitory.EPGRepository
 import com.spark.fastplayer.presentation.epg.EPGViewModel
 import com.spark.fastplayer.presentation.splash.SplashViewModel
@@ -22,7 +23,8 @@ class ViewModelsModule {
     @Provides
     fun providesEPGViewModel(
         epgRepository: EPGRepository,
-        coroutineContextProvider: CoroutineContextProvider
-    ) = EPGViewModel(epgRepository, coroutineContextProvider)
+        coroutineContextProvider: CoroutineContextProvider,
+        dataStoreManager: DataStoreManager
+    ) = EPGViewModel(epgRepository, coroutineContextProvider, dataStoreManager)
 
 }
