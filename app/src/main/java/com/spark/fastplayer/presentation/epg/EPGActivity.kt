@@ -9,7 +9,6 @@ import android.util.Rational
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
@@ -36,7 +35,6 @@ class EPGActivity : ComponentActivity() {
 
     private var pipModeState = mutableStateOf<Boolean>(false)
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen().apply {
@@ -53,7 +51,8 @@ class EPGActivity : ComponentActivity() {
                 onProgramClick = { channelId, taxonomyId ->
                     epgViewModel.initPlayback(channelId, taxonomyId)
                 },
-                isVideoPlayingInPiPMode = pipModeState
+                isVideoPlayingInPiPMode = pipModeState,
+                onRefreshEPG = { epgViewModel.sanitizeEPGData() }
             )
         }
     }
@@ -93,7 +92,6 @@ class EPGActivity : ComponentActivity() {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun updatedPipParams(): PictureInPictureParams {
         return PictureInPictureParams.Builder()
             .setAspectRatio(Rational(16, 9))
@@ -101,7 +99,6 @@ class EPGActivity : ComponentActivity() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onPictureInPictureModeChanged(
         isInPictureInPictureMode: Boolean,
         newConfig: Configuration
@@ -115,7 +112,6 @@ class EPGActivity : ComponentActivity() {
         renderEPGData()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         if(hasPipSupport()) {
