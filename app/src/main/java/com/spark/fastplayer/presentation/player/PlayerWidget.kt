@@ -75,7 +75,10 @@ fun VideoPlayerWidget(playbackState: PlaybackState) {
             val observer = LifecycleEventObserver { owner, event ->
                 when (event) {
                     Lifecycle.Event.ON_STOP -> {
-                        exoPlayer.release()
+                        exoPlayer.stop()
+                    }
+                    Lifecycle.Event.ON_START -> {
+                        exoPlayer.playWhenReady = true
                     }
                     else -> {
 

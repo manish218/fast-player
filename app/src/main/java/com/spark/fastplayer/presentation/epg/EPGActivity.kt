@@ -56,7 +56,6 @@ class EPGActivity : ComponentActivity() {
                 isVideoPlayingInPiPMode = pipModeState
             )
         }
-        renderEPGData()
     }
 
     private fun renderEPGData() {
@@ -111,24 +110,16 @@ class EPGActivity : ComponentActivity() {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         renderEPGData()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if(!hasPipSupport()) {
-            return
-        }
-        updatedPipParams()?.let { params ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                enterPictureInPictureMode(params)
-            }
+        if(hasPipSupport()) {
+            enterPictureInPictureMode(updatedPipParams())
         }
     }
-
-
-
 }
