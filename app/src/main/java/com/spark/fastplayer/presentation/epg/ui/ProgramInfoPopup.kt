@@ -30,7 +30,7 @@ import org.openapitools.client.models.Program
 fun BottomSheetLayout(bottomSheetDataState: BottomSheetDataState) {
     when (bottomSheetDataState) {
         is BottomSheetDataState.Load -> SheetContent(program = bottomSheetDataState.program)
-        is BottomSheetDataState.Init -> SheetContent(program = bottomSheetDataState.program)
+        is BottomSheetDataState.Init -> { }
     }
 }
 
@@ -68,7 +68,11 @@ fun SheetContent(program: Program) {
 
             Box(
                 modifier = Modifier
-                    .border(width = 0.dp, color = MaterialTheme.colorScheme.onPrimary, shape = RoundedCornerShape(5.dp))
+                    .border(
+                        width = 0.dp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        shape = RoundedCornerShape(5.dp)
+                    )
                     .background(if (streamTye is StreamType.Live) LiveBadgeColor else UpcomingBadgeColor)
                     .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)
             ) {
@@ -113,7 +117,11 @@ fun SheetContent(program: Program) {
 
         Box(
             modifier = Modifier
-                .border(width = 0.dp, color = MaterialTheme.colorScheme.onPrimary, shape = RoundedCornerShape(4.dp))
+                .border(
+                    width = 0.dp,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    shape = RoundedCornerShape(4.dp)
+                )
                 .background(MaterialTheme.colorScheme.primary)
                 .padding(8.dp)
         ) {
