@@ -1,6 +1,7 @@
 package com.spark.fastplayer.presentation.epg.ui
 
 import android.content.res.Configuration
+import android.graphics.Rect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,7 +39,8 @@ fun HomeScreen(
     playbackState: MutableState<PlaybackState>,
     onProgramClick: (String, String) -> Unit,
     onRefreshEPG: () -> Unit,
-    refreshInterval: Long = 1000*60*5L
+    refreshInterval: Long = 1000*60*5L,
+    isVideoPlayingInPiPMode: MutableState<Boolean>
 ) {
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
@@ -57,7 +59,7 @@ fun HomeScreen(
                 scrimColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
             ) {
                 Column {
-                    RenderPlayer(playbackState = playbackState)
+                    RenderPlayer(playbackState = playbackState, isVideoPlayingInPiPMode = isVideoPlayingInPiPMode)
                     EPGGridView(
                         coroutine = coroutineScope,
                         bottomSheetState = modalSheetState,
@@ -118,19 +120,29 @@ fun ShowLoading(ePGState: EPGState) {
 }
 
 @Composable
-fun RenderPlayer(playbackState: MutableState<PlaybackState>) {
-    val configuration = LocalConfiguration.current
+fun RenderPlayer(
+    playbackState: MutableState<PlaybackState>,
+    isVideoPlayingInPiPMode: MutableState<Boolean>
+) {
+   val configuration = LocalConfiguration.current
     val systemUiController: SystemUiController = rememberSystemUiController()
 
     val modifier = when (configuration.orientation) {
         Configuration.ORIENTATION_LANDSCAPE ->  {
             systemUiController.isSystemBarsVisible = false
             systemUiController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            Modifier.background(color = MaterialTheme.colorScheme.primary).wrapContentSize()
+            Modifier
+                .background(color = MaterialTheme.colorScheme.primary)
+                .wrapContentSize()
         }
         else -> {
             systemUiController.isSystemBarsVisible = true
-            Modifier.background(color = MaterialTheme.colorScheme.primary).fillMaxHeight(0.28f).fillMaxWidth()
+            Modifier
+                .background(color = MaterialTheme.colorScheme.primary)
+                .run {
+                    if (!isVideoPlayingInPiPMode.value)  fillMaxHeight(0.28f).fillMaxWidth()
+                    else this.wrapContentSize()
+                }
         }
     }
 
@@ -140,10 +152,11 @@ fun RenderPlayer(playbackState: MutableState<PlaybackState>) {
         VideoPlayerWidget(playbackState = playbackState.value)
     }
 }
+
 @Composable
 private fun forceRefreshEPGView( onRefreshEPG: () -> Unit, refreshInterval: Long) {
     LaunchedEffect(Unit) {
-        while(true) {
+        while (true) {
             onRefreshEPG.invoke()
             delay(refreshInterval)
         }

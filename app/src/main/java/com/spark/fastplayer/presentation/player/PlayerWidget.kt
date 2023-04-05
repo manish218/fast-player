@@ -74,14 +74,14 @@ fun VideoPlayerWidget(playbackState: PlaybackState) {
 
             val observer = LifecycleEventObserver { owner, event ->
                 when (event) {
-                    Lifecycle.Event.ON_PAUSE -> {
-                        exoPlayer.pause()
+                    Lifecycle.Event.ON_STOP -> {
+                        exoPlayer.stop()
                     }
-                    Lifecycle.Event.ON_RESUME -> {
-                        exoPlayer.play()
+                    Lifecycle.Event.ON_START -> {
+                        exoPlayer.playWhenReady = true
                     }
                     else -> {
-                        exoPlayer.pause()
+
                     }
                 }
             }
@@ -109,7 +109,8 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState)
             modifier = Modifier
                 .clickable {
                     shouldShowControls = shouldShowControls.not()
-                }.background(MaterialTheme.colorScheme.primary)
+                }
+                .background(MaterialTheme.colorScheme.primary)
                 .constrainAs(playerView) {},
             factory = {
                 StyledPlayerView(context).apply {
