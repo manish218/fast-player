@@ -68,12 +68,7 @@ fun SheetContent(program: Program) {
 
             Box(
                 modifier = Modifier
-                    .border(
-                        width = 0.dp,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        shape = RoundedCornerShape(5.dp)
-                    )
-                    .background(if (streamTye is StreamType.Live) LiveBadgeColor else UpcomingBadgeColor)
+                    .background(shape = RoundedCornerShape(4.dp),  color = if (streamTye is StreamType.Live) LiveBadgeColor else UpcomingBadgeColor)
                     .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)
             ) {
                 androidx.compose.material3.Text(
@@ -117,12 +112,7 @@ fun SheetContent(program: Program) {
 
         Box(
             modifier = Modifier
-                .border(
-                    width = 0.dp,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    shape = RoundedCornerShape(4.dp)
-                )
-                .background(MaterialTheme.colorScheme.primary)
+                .background(shape = RoundedCornerShape(4.dp), color = MaterialTheme.colorScheme.primary)
                 .padding(8.dp)
         ) {
             androidx.compose.material3.Text(

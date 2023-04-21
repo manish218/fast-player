@@ -53,7 +53,7 @@ fun ChannelMetaDataView(
 
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp)
+                modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 8.dp)
             ) {
                 Text(
                     text = broadCastTime,
@@ -65,10 +65,10 @@ fun ChannelMetaDataView(
                 )
 
                 Box(modifier  = Modifier
-                    .background(if (streamType is StreamType.Live) LiveBadgeColor else UpcomingBadgeColor)
+                    .background(shape = RoundedCornerShape(3.dp), color = if (streamType is StreamType.Live) LiveBadgeColor else UpcomingBadgeColor)
                     .padding(1.dp)) {
                     Text(
-                        text = if (streamType is StreamType.Live) "Live" else "UpComing",
+                        text = if (streamType is StreamType.Live) " Live " else " UpComing ",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onPrimary,
                         textAlign = TextAlign.End,
