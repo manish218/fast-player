@@ -2,8 +2,6 @@ package com.spark.fastplayer.presentation.epg
 
 import android.app.PictureInPictureParams
 import android.content.res.Configuration
-import android.graphics.Rect
-import android.os.Build
 import android.os.Bundle
 import android.util.Rational
 import androidx.activity.ComponentActivity
@@ -42,7 +40,7 @@ class EPGActivity : ComponentActivity() {
                 splashViewModel.splashState.value == SplashState.Init
             }
         }
-
+        actionBar?.hide()
         setContent {
             HomeScreen(
                 bottomSheetDataState = bottomSheetDataState,
