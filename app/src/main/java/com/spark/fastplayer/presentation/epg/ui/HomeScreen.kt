@@ -39,7 +39,7 @@ fun HomeScreen(
     playbackState: MutableState<PlaybackState>,
     onProgramClick: (String, String) -> Unit,
     onRefreshEPG: () -> Unit,
-    refreshInterval: Long = 1000*60*5L,
+    refreshInterval: Long = 1000 * 60 * 5L,
     isVideoPlayingInPiPMode: MutableState<Boolean>
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -124,11 +124,10 @@ fun RenderPlayer(
     playbackState: MutableState<PlaybackState>,
     isVideoPlayingInPiPMode: MutableState<Boolean>
 ) {
-   val configuration = LocalConfiguration.current
+    val configuration = LocalConfiguration.current
     val systemUiController: SystemUiController = rememberSystemUiController()
-
     val modifier = when (configuration.orientation) {
-        Configuration.ORIENTATION_LANDSCAPE ->  {
+        Configuration.ORIENTATION_LANDSCAPE -> {
             systemUiController.isSystemBarsVisible = false
             systemUiController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             Modifier
@@ -140,21 +139,23 @@ fun RenderPlayer(
             Modifier
                 .background(color = MaterialTheme.colorScheme.primary)
                 .run {
-                    if (!isVideoPlayingInPiPMode.value)  fillMaxHeight(0.28f).fillMaxWidth()
+                    if (!isVideoPlayingInPiPMode.value) fillMaxHeight(0.28f).fillMaxWidth()
                     else this.wrapContentSize()
                 }
         }
     }
 
     Surface(
-        modifier = modifier.background(MaterialTheme.colorScheme.primary).fillMaxSize()
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.primary)
+            .fillMaxSize()
     ) {
         VideoPlayerWidget(playbackState = playbackState.value)
     }
 }
 
 @Composable
-private fun forceRefreshEPGView( onRefreshEPG: () -> Unit, refreshInterval: Long) {
+private fun forceRefreshEPGView(onRefreshEPG: () -> Unit, refreshInterval: Long) {
     LaunchedEffect(Unit) {
         while (true) {
             onRefreshEPG.invoke()

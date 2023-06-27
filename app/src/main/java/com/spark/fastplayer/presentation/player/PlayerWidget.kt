@@ -108,7 +108,6 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState)
 
     ConstraintLayout {
         val (playerView, OverlayView) = createRefs()
-
         AndroidView(
             modifier = Modifier
                 .clickable {
@@ -123,7 +122,7 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState)
                     resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
                     layoutParams = FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
+                        ViewGroup.LayoutParams.MATCH_PARENT
                     )
                     setShowBuffering(StyledPlayerView.SHOW_BUFFERING_ALWAYS)
                 }

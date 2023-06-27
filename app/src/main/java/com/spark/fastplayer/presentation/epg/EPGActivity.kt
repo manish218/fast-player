@@ -4,6 +4,7 @@ import android.app.PictureInPictureParams
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Rational
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -107,6 +108,7 @@ class EPGActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         renderEPGData()
     }
 
@@ -115,5 +117,10 @@ class EPGActivity : ComponentActivity() {
         if(hasPipSupport()) {
             enterPictureInPictureMode(updatedPipParams())
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 }
