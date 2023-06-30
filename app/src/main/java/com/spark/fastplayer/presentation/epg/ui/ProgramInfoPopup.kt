@@ -93,7 +93,7 @@ fun SheetContent(program: Program) {
         )
 
         Text(
-            text = program.description.orEmpty(),
+            text = program.description.takeIf { !it.isNullOrEmpty() } ?: program.channel?.description.orEmpty(),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onPrimary,
             textAlign = TextAlign.Start,
