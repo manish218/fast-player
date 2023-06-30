@@ -15,6 +15,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -129,6 +131,32 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState)
             }
         )
 
+        if (playbackState is PlaybackState.PlaybackSuccess) {
+            Box(
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .height(40.dp)
+                    .width(40.dp)
+                    .shadow(
+                        elevation = 4.dp,
+                        clip = false
+                    )
+                    .alpha(0.8f)
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(playbackState.metData.channelLogoUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "contentDescription",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(6.dp),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+        }
+
         AnimatedVisibility(
             modifier = Modifier
                 .fillMaxWidth()
@@ -143,7 +171,8 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState)
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            Box(modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
+            Box(modifier = Modifier
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
                 .fillMaxSize()) {
                if(playbackState is PlaybackState.PlaybackSuccess) {
                    TopControl(

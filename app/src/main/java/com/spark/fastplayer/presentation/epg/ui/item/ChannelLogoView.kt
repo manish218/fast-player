@@ -36,7 +36,7 @@ fun ChannelLogoView(
                 .build(),
             contentDescription = contentDescription,
             modifier = Modifier.fillMaxSize().padding(6.dp),
-            contentScale = ContentScale.Inside,
+            contentScale = ContentScale.Crop,
         )
     }
 }
