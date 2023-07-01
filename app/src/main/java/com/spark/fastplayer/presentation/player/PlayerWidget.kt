@@ -136,7 +136,7 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState)
                 modifier = Modifier
                     .padding(start = 16.dp)
                     .height(40.dp)
-                    .width(40.dp)
+                    .width(60.dp)
                     .shadow(
                         elevation = 4.dp,
                         clip = false
