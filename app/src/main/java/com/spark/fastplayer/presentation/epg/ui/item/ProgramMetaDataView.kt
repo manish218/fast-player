@@ -36,7 +36,7 @@ fun ProgramCardView(
                     onClick = { if (program.scheduleStart.getStreamType(program.scheduleEnd) == StreamType.Live) {
                         onProgramClicked(program.channel?.channelid.orEmpty(), program.taxonomies?.first()?.taxonomyId.orEmpty())
                     } },
-                    onLongClick = {onLongPressedCallback(program) },
+                    onLongClick = { onLongPressedCallback(program) },
                 )
         ) {
             ChannelMetaDataView(
