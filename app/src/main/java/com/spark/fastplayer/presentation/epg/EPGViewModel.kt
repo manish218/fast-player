@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.openapitools.client.models.EpgRow
 import org.openapitools.client.models.Program
@@ -47,7 +48,7 @@ class EPGViewModel @Inject constructor(
         }
     }
 
-    fun initPlayback(channelId: String, taxonomyId: String) {
+    fun initPlayback(channelId: String, taxonomyId: String, programId: String) {
         viewModelScope.launch(coroutineContextProvider.io) {
             val playbackData = epgRepository.getChannelStreamInfo(channelId)
             _playbackState.value = PlaybackState.PlaybackSuccess(
@@ -59,6 +60,7 @@ class EPGViewModel @Inject constructor(
                 )
             )
             dataStoreManager.saveChannelId(channelId)
+            dataStoreManager.saveProgramId(programId)
             if (taxonomyId.isNotEmpty())dataStoreManager.saveTaxonomyId(taxonomyId)
         }
     }
@@ -71,7 +73,7 @@ class EPGViewModel @Inject constructor(
                 set.add(tx)
                 tx
             }
-            _epgState.value = EPGState.FetchSuccess(map.toList(), set.toList())
+            _epgState.value = EPGState.FetchSuccess(map.toList(), set.toList(), dataStoreManager.getProgramId.firstOrNull())
         }
     }
 
@@ -118,7 +120,8 @@ class EPGViewModel @Inject constructor(
                     program.channel?.channelid?.let { channelId ->
                         initPlayback(
                             channelId = channelId,
-                            taxonomyId = program.taxonomies?.firstOrNull()?.taxonomyId.orEmpty()
+                            taxonomyId = program.taxonomies?.firstOrNull()?.taxonomyId.orEmpty(),
+                            programId = dataStoreManager.getProgramId.first()
                         )
                     }
                 }
@@ -130,7 +133,8 @@ class EPGViewModel @Inject constructor(
             program.channel?.channelid?.let {
                 initPlayback(
                     channelId = it,
-                    taxonomyId = program.taxonomies?.first()?.taxonomyId.orEmpty()
+                    taxonomyId = program.taxonomies?.first()?.taxonomyId.orEmpty(),
+                    programId = program.id.toString()
                 )
             }
         }

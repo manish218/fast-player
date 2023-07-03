@@ -1,5 +1,7 @@
 package com.spark.fastplayer.presentation.epg.ui.grid
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -20,14 +22,16 @@ import com.spark.fastplayer.presentation.epg.ui.item.ChannelLogoView
 import com.spark.fastplayer.presentation.epg.ui.EPGCardItemSurface
 import com.spark.fastplayer.presentation.epg.ui.item.ProgramCardView
 import kotlinx.coroutines.launch
+import org.openapitools.client.models.Channel
 import org.openapitools.client.models.EpgRow
 import org.openapitools.client.models.Program
 import org.openapitools.client.models.Taxonomy
 
 @Composable
 fun FeedEPGData(
-    onProgramClick: (String, String) -> Unit,
+    onProgramClick: (String, String, String) -> Unit,
     onProgramLongClick: (Program) -> Unit,
+    onChannelLongClick: (Channel, String) -> Unit,
     modifier: Modifier = Modifier,
     epgState: EPGState
 ) {
@@ -38,9 +42,12 @@ fun FeedEPGData(
                 epgState.taxonomies,
                 onProgramClick,
                 onProgramLongClick,
+                onChannelLongClick,
+                epgState.streamingContentId,
                 modifier
             )
         }
+
         else -> {}
     }
 }
@@ -50,12 +57,21 @@ fun FeedEPGData(
 private fun RenderEPGGrid(
     epgRowCollection: List<Pair<Taxonomy?, List<EpgRow>>>,
     filters: List<Taxonomy?>,
-    onProgramClick: (String, String) -> Unit,
+    onProgramClick: (String, String, String) -> Unit,
     onProgramLongClick: (Program) -> Unit,
+    onChannelLongClick: (Channel, String) -> Unit,
+    streamingContentId: String?,
     modifier: Modifier = Modifier
 ) {
     EPGCardItemSurface(modifier = modifier.fillMaxSize()) {
-        RenderEPGRowsCollections(epgRowCollection, filters, onProgramClick,onProgramLongClick)
+        RenderEPGRowsCollections(
+            epgRowCollection,
+            filters,
+            onProgramClick,
+            onProgramLongClick,
+            onChannelLongClick,
+            streamingContentId
+        )
     }
 }
 
@@ -63,8 +79,10 @@ private fun RenderEPGGrid(
 private fun RenderEPGRowsCollections(
     epgRow: List<Pair<Taxonomy?, List<EpgRow>>>,
     taxonomies: List<Taxonomy?>,
-    onProgramClick: (String, String) -> Unit,
+    onProgramClick: (String, String, String) -> Unit,
     onProgramLongClick: (Program) -> Unit,
+    onChannelLongClick: (Channel, String) -> Unit,
+    streamingContentId: String?,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -88,7 +106,7 @@ private fun RenderEPGRowsCollections(
 
         LazyColumn(state = listState) {
             itemsIndexed(epgRow) { _, list ->
-                if (list.first!=null) {
+                if (list.first != null) {
                     Text(
                         text = list.second.firstOrNull()?.programs?.firstOrNull()?.taxonomies?.firstOrNull()?.title.orEmpty(),
                         modifier = modifier
@@ -103,18 +121,27 @@ private fun RenderEPGRowsCollections(
                     )
                 }
                 list.second.forEach {
-                    EpgProgramsCollection(it.programs.orEmpty(), onProgramClick, onProgramLongClick)
+                    EpgProgramsCollection(
+                        it.programs.orEmpty(),
+                        streamingContentId,
+                        onProgramClick,
+                        onProgramLongClick,
+                        onChannelLongClick
+                    )
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EpgProgramsCollection(
     programList: List<Program>,
-    onProgramClicked: (String, String) -> Unit,
+    streamingContentId: String?,
+    onProgramClicked: (String, String, String) -> Unit,
     onProgramLongClick: (Program) -> Unit,
+    onChannelLongClick: (Channel, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier) {
@@ -126,6 +153,14 @@ fun EpgProgramsCollection(
                     .width(116.dp)
                     .height(72.dp)
                     .padding(start = 12.dp, end = 6.dp)
+                    .combinedClickable(
+                        onLongClick = {
+                            programList.firstOrNull()?.channel?.let {
+                                onChannelLongClick.invoke(it,  programList.firstOrNull()!!.id.toString())
+                            }
+                        },
+                        onClick = { }
+                    )
             )
         }
         LazyRow(
@@ -133,7 +168,7 @@ fun EpgProgramsCollection(
             contentPadding = PaddingValues(end = 12.dp)
         ) {
             itemsIndexed(programList) { index, program ->
-                ProgramCardView(program, onProgramClicked, onProgramLongClick)
+                ProgramCardView(program, streamingContentId,onProgramClicked, onProgramLongClick)
             }
         }
     }

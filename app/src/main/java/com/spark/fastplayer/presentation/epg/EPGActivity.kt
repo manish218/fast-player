@@ -47,8 +47,8 @@ class EPGActivity : ComponentActivity() {
                 bottomSheetDataState = bottomSheetDataState,
                 epgState = epgState,
                 playbackState = playbackState,
-                onProgramClick = { channelId, taxonomyId ->
-                    epgViewModel.initPlayback(channelId, taxonomyId)
+                onProgramClick = { channelId, taxonomyId, programId ->
+                    epgViewModel.initPlayback(channelId, taxonomyId, programId)
                 },
                 isVideoPlayingInPiPMode = pipModeState,
                 onRefreshEPG = { epgViewModel.sanitizeEPGData() }
@@ -77,7 +77,7 @@ class EPGActivity : ComponentActivity() {
             epgViewModel.epgState.collect {
                 when (it) {
                     is EPGState.FetchSuccess -> {
-                        epgState.value = EPGState.FetchSuccess(it.map, it.taxonomies)
+                        epgState.value = EPGState.FetchSuccess(it.map, it.taxonomies, it.streamingContentId)
                     }
                     is EPGState.FetchError -> {
                         // display error UI

@@ -5,6 +5,6 @@ import org.openapitools.client.models.Taxonomy
 
 sealed class EPGState {
     object Fetch: EPGState()
-    class FetchSuccess(val map: List<Pair<Taxonomy?, List<EpgRow>>>, val taxonomies: List<Taxonomy?>): EPGState()
+    class FetchSuccess(val map: List<Pair<Taxonomy?, List<EpgRow>>>, val taxonomies: List<Taxonomy?>, val streamingContentId: String?): EPGState()
     object FetchError: EPGState()
 }

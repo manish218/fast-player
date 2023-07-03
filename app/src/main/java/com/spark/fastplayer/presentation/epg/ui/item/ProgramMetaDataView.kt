@@ -17,7 +17,8 @@ import org.openapitools.client.models.Program
 @Composable
 fun ProgramCardView(
     program: Program,
-    onProgramClicked: (String, String) -> Unit,
+    streamingContentId: String?,
+    onProgramClicked: (String, String, String) -> Unit,
     onLongPressedCallback: (Program) -> Unit
 ) {
     EPGCardItemSurface(
@@ -34,12 +35,13 @@ fun ProgramCardView(
                 .height(72.dp)
                 .combinedClickable(
                     onClick = { if (program.scheduleStart.getStreamType(program.scheduleEnd) == StreamType.Live) {
-                        onProgramClicked(program.channel?.channelid.orEmpty(), program.taxonomies?.first()?.taxonomyId.orEmpty())
+                        onProgramClicked(program.channel?.channelid.orEmpty(), program.taxonomies?.first()?.taxonomyId.orEmpty(), program.id.toString())
                     } },
                     onLongClick = { onLongPressedCallback(program) },
                 )
         ) {
             ChannelMetaDataView(
+                isCardCurrentPlayed = streamingContentId?.equals(program.id.toString()) == true,
                 channelName = program.channel?.title.orEmpty(),
                 streamType = program.scheduleStart.getStreamType(program.scheduleEnd),
                 broadCastTime = program.getFormattedScheduledTime()
