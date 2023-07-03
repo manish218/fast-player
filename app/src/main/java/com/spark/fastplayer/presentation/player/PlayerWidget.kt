@@ -134,8 +134,13 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState)
         if (playbackState is PlaybackState.PlaybackSuccess) {
             Box(
                 modifier = Modifier
+                    .padding(start = 16.dp)
                     .height(40.dp)
                     .width(60.dp)
+                    .shadow(
+                        elevation = 4.dp,
+                        clip = false
+                    )
                     .alpha(0.8f)
             ) {
                 AsyncImage(
@@ -147,6 +152,7 @@ private fun RenderPlayerView(exoPlayer: ExoPlayer, playbackState: PlaybackState)
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(6.dp),
+                    contentScale = ContentScale.Crop,
                 )
             }
         }
