@@ -17,9 +17,11 @@ import org.openapitools.client.models.Program
 @Composable
 fun ProgramCardView(
     program: Program,
+    selectedItemId: String?,
     streamingContentId: String?,
     onProgramClicked: (String, String, String) -> Unit,
-    onLongPressedCallback: (Program) -> Unit
+    onLongPressedCallback: (Program) -> Unit,
+    onItemSelected: (String) -> Unit
 ) {
     EPGCardItemSurface(
         modifier = Modifier
@@ -31,17 +33,27 @@ fun ProgramCardView(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.width(160.dp)
+            modifier = Modifier
+                .width(160.dp)
                 .height(72.dp)
                 .combinedClickable(
-                    onClick = { if (program.scheduleStart.getStreamType(program.scheduleEnd) == StreamType.Live) {
-                        onProgramClicked(program.channel?.channelid.orEmpty(), program.taxonomies?.first()?.taxonomyId.orEmpty(), program.id.toString())
-                    } },
+                    onClick = {
+                        if (program.scheduleStart.getStreamType(program.scheduleEnd) == StreamType.Live) {
+                            onProgramClicked(
+                                program.channel?.channelid.orEmpty(),
+                                program.taxonomies?.first()?.taxonomyId.orEmpty(),
+                                program.id.toString()
+                            )
+                        }
+                        // only Live programs click should highlight
+                        if (program.scheduleStart.getStreamType(program.scheduleEnd) == StreamType.Live)
+                         onItemSelected(program.id.toString())
+                    },
                     onLongClick = { onLongPressedCallback(program) },
                 )
         ) {
             ChannelMetaDataView(
-                isCardCurrentPlayed = streamingContentId?.equals(program.id.toString()) == true,
+                isCardCurrentPlayed = if (selectedItemId != null) program.id.toString() == selectedItemId else streamingContentId?.equals(program.id.toString()) == true,
                 channelName = program.channel?.title.orEmpty(),
                 streamType = program.scheduleStart.getStreamType(program.scheduleEnd),
                 broadCastTime = program.getFormattedScheduledTime()

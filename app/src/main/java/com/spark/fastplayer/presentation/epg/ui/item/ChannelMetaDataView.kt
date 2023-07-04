@@ -28,11 +28,9 @@ fun ChannelMetaDataView(
     channelName: String,
     broadCastTime: String,
     streamType: StreamType = StreamType.None,
-    elevation: Dp = 0.dp
 ) {
     EPGCardItemSurface(
         color = MaterialTheme.colorScheme.secondary,
-        elevation = elevation,
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
     ) {

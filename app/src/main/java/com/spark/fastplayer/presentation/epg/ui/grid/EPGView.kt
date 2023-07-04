@@ -87,6 +87,7 @@ private fun RenderEPGRowsCollections(
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    var selectedItemId by remember { mutableStateOf<String?>(null) }
 
     Column(modifier) {
         LazyColumn(state = listState) {
@@ -98,7 +99,7 @@ private fun RenderEPGRowsCollections(
                 )
                 EpgTaxonomyCollection(taxonomyList = taxonomies, onTaxonomySelected = {
                     scope.launch {
-                        listState.scrollToItem(getSelectedTaxonomyIndex(it, epgRow))
+                        listState.animateScrollToItem(getSelectedTaxonomyIndex(it, epgRow))
                     }
                 })
             }
@@ -126,8 +127,11 @@ private fun RenderEPGRowsCollections(
                         streamingContentId,
                         onProgramClick,
                         onProgramLongClick,
-                        onChannelLongClick
-                    )
+                        onChannelLongClick,
+                        selectedItemId
+                    ) { itemId ->
+                        selectedItemId = itemId
+                    }
                 }
             }
         }
@@ -142,8 +146,10 @@ fun EpgProgramsCollection(
     onProgramClicked: (String, String, String) -> Unit,
     onProgramLongClick: (Program) -> Unit,
     onChannelLongClick: (Channel, String) -> Unit,
-    modifier: Modifier = Modifier,
+    selectedItemId: String?,
+    onItemSelected: (String) -> Unit,
 ) {
+    val modifier = Modifier
     Row(modifier = modifier) {
         if (programList.isNotEmpty()) {
             ChannelLogoView(
@@ -168,7 +174,7 @@ fun EpgProgramsCollection(
             contentPadding = PaddingValues(end = 12.dp)
         ) {
             itemsIndexed(programList) { index, program ->
-                ProgramCardView(program, streamingContentId,onProgramClicked, onProgramLongClick)
+                ProgramCardView(program, selectedItemId, streamingContentId,onProgramClicked, onProgramLongClick, onItemSelected)
             }
         }
     }
