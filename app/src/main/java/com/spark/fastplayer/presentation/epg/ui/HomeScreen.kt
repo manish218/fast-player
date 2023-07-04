@@ -1,7 +1,6 @@
 package com.spark.fastplayer.presentation.epg.ui
 
 import android.content.res.Configuration
-import android.graphics.Rect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +36,7 @@ fun HomeScreen(
     bottomSheetDataState: MutableState<BottomSheetDataState>,
     epgState: MutableState<EPGState>,
     playbackState: MutableState<PlaybackState>,
-    onProgramClick: (String, String) -> Unit,
+    onProgramClick: (String, String, String) -> Unit,
     onRefreshEPG: () -> Unit,
     refreshInterval: Long = 1000 * 60 * 5L,
     isVideoPlayingInPiPMode: MutableState<Boolean>
@@ -81,14 +80,20 @@ fun EPGGridView(
     bottomSheetState: ModalBottomSheetState,
     epgState: MutableState<EPGState>,
     bottomSheetDataState: MutableState<BottomSheetDataState>,
-    onProgramClick: (String, String) -> Unit
+    onProgramClick: (String, String, String) -> Unit
 ) {
     FeedEPGData(
         onProgramClick = onProgramClick,
         epgState = epgState.value,
         onProgramLongClick = {
             coroutine.launch {
-                bottomSheetDataState.value = BottomSheetDataState.Load(it)
+                bottomSheetDataState.value = BottomSheetDataState.ShowProgramInfo(it)
+                bottomSheetState.show()
+            }
+        },
+        onChannelLongClick = { channel , p_id ->
+            coroutine.launch {
+                bottomSheetDataState.value = BottomSheetDataState.ShowChannelInfo(channel, onProgramClick, p_id)
                 bottomSheetState.show()
             }
         }

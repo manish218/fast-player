@@ -24,7 +24,9 @@ import java.io.IOException
 class PlaybackInfoApi(
     basePath: kotlin.String = defaultBasePath,
     client: OkHttpClient = ApiClient.defaultClient,
-    private val apiKey: String
+    private val apiKey: String,
+    private val androidID: String = "",
+    private val tcfID: String = ""
 ) : ApiClient(basePath, client) {
     companion object {
         @JvmStatic
@@ -94,6 +96,8 @@ class PlaybackInfoApi(
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         localVariableHeaders["Accept"] = "application/json"
         localVariableHeaders["X-API-Key"] = apiKey
+        localVariableHeaders["device_id"] = androidID
+        localVariableHeaders["tcf_string"] = tcfID
 
         return RequestConfig(
             method = RequestMethod.GET,
